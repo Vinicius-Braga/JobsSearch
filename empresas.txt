@@ -1,0 +1,10 @@
+farmaciasaojoao,Farmacias Sao Joao
+randon,Randon
+vivo,Vivo
+carreirasallos,Allos
+vempra,Gupy
+localiza,Localiza
+stone,Stone
+renner,Lojas Renner
+ambev,Ambev
+movida,Movida
