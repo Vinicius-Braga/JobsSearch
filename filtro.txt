@@ -4,4 +4,4 @@
 # regiao: sigla do estado (ex: RS, SP) ou nome/parte do nome da cidade (ex: Porto Alegre)
 area=RH
 # senioridade=junior,pleno,senior,auxiliar,assistente,estagio
-# regiao=RS,Porto Alegre
+regiao=RS,Porto Alegre

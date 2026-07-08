@@ -32,14 +32,14 @@ public class Main {
         HtmlExporter htmlExporter = new HtmlExporter();
         TelegramNotifier telegramNotifier = configurarTelegram(httpClient, objectMapper);
 
-        boolean primeiroCiclo = true;
+        boolean primeiraExecucaoAbsoluta = !Files.exists(Path.of("vagas.csv"));
 
         while (true) {
             System.out.println("=== Ciclo iniciado em " + LocalDateTime.now() + " ===");
             try {
                 executarCiclo(extractor, gupyClient, csvExporter, htmlExporter,
-                        primeiroCiclo ? null : telegramNotifier);
-                primeiroCiclo = false;
+                        primeiraExecucaoAbsoluta ? null : telegramNotifier);
+                primeiraExecucaoAbsoluta = false;
             } catch (Exception e) {
                 System.out.println("Ciclo falhou: " + e.getMessage());
             }

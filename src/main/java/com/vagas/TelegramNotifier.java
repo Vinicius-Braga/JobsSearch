@@ -16,6 +16,8 @@ import java.util.List;
 public class TelegramNotifier {
 
     private static final int LIMITE_CARACTERES_POR_MENSAGEM = 3500;
+    private static final int MAX_TENTATIVAS = 3;
+    private static final Duration ESPERA_ENTRE_TENTATIVAS = Duration.ofSeconds(3);
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
@@ -91,28 +93,51 @@ public class TelegramNotifier {
     }
 
     private void enviarMensagem(String texto) {
-        try {
-            String textoCodificado = URLEncoder.encode(texto, StandardCharsets.UTF_8);
-            String url = "https://api.telegram.org/bot" + token + "/sendMessage"
-                    + "?chat_id=" + chatId
-                    + "&text=" + textoCodificado
-                    + "&parse_mode=HTML"
-                    + "&disable_web_page_preview=true";
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .timeout(Duration.ofSeconds(15))
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
-                System.out.println("Falha ao enviar notificação no Telegram (status " + response.statusCode()
-                        + "): " + response.body());
+        for (int tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
+            try {
+                if (tentarEnviar(texto)) {
+                    return;
+                }
+            } catch (IOException | InterruptedException e) {
+                System.out.println("Falha ao enviar notificação no Telegram (tentativa " + tentativa
+                        + "/" + MAX_TENTATIVAS + "): " + e.getMessage());
             }
-        } catch (IOException | InterruptedException e) {
-            System.out.println("Falha ao enviar notificação no Telegram: " + e.getMessage());
-            e.printStackTrace();
+
+            if (tentativa < MAX_TENTATIVAS) {
+                dormir(ESPERA_ENTRE_TENTATIVAS);
+            }
+        }
+        System.out.println("Desisti de enviar a notificação no Telegram após " + MAX_TENTATIVAS + " tentativas.");
+    }
+
+    private boolean tentarEnviar(String texto) throws IOException, InterruptedException {
+        String textoCodificado = URLEncoder.encode(texto, StandardCharsets.UTF_8);
+        String url = "https://api.telegram.org/bot" + token + "/sendMessage"
+                + "?chat_id=" + chatId
+                + "&text=" + textoCodificado
+                + "&parse_mode=HTML"
+                + "&disable_web_page_preview=true";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(Duration.ofSeconds(15))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            System.out.println("Falha ao enviar notificação no Telegram (status " + response.statusCode()
+                    + "): " + response.body());
+            return false;
+        }
+        return true;
+    }
+
+    private void dormir(Duration duracao) {
+        try {
+            Thread.sleep(duracao.toMillis());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 }
