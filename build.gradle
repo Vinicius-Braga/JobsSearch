@@ -1,6 +1,8 @@
 plugins {
     id 'java'
     id 'application'
+    id 'org.springframework.boot' version '3.4.1'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.jobs'
@@ -13,7 +15,18 @@ java {
 }
 
 application {
+    // CLI de loop (V1) continua rodando via `./gradlew run`.
     mainClass = 'com.jobs.Main'
+}
+
+springBoot {
+    mainClass = 'com.jobs.infrastructure.web.WebApplication'
+}
+
+// `application.mainClass` (com.jobs.Main) é herdado pelo bootRun por padrão
+// quando o plugin 'application' está presente — força explicitamente a classe web aqui.
+tasks.named('bootRun') {
+    mainClass = 'com.jobs.infrastructure.web.WebApplication'
 }
 
 repositories {
@@ -21,10 +34,12 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
