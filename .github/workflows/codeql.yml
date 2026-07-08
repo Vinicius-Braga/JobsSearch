@@ -32,6 +32,9 @@ jobs:
         with:
           languages: java
 
+      - name: Garantir permissão de execução do gradlew
+        run: chmod +x gradlew
+
       - name: Compilar (CodeQL precisa do bytecode pra analisar Java)
         run: ./gradlew compileJava compileTestJava --console=plain
 
