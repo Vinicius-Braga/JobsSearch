@@ -3,7 +3,7 @@ plugins {
     id 'application'
 }
 
-group = 'com.vagas'
+group = 'com.jobs'
 version = '0.1.0'
 
 java {
@@ -13,7 +13,7 @@ java {
 }
 
 application {
-    mainClass = 'com.vagas.Main'
+    mainClass = 'com.jobs.Main'
 }
 
 repositories {

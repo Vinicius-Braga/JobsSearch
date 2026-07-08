@@ -1,7 +1,9 @@
-package com.vagas;
+package com.jobs.infrastructure.gupy;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jobs.domain.Company;
+import com.jobs.domain.Job;
 
 import java.io.IOException;
 import java.net.URI;
@@ -22,44 +24,44 @@ public class GupyClient {
         this.objectMapper = objectMapper;
     }
 
-    public List<Vaga> buscarVagas(Empresa empresa, String buildId) throws IOException, InterruptedException {
-        JsonNode root = fetchDataJson(empresa, buildId);
+    public List<Job> findJobs(Company company, String buildId) throws IOException, InterruptedException {
+        JsonNode root = fetchDataJson(company, buildId);
         JsonNode jobs = root.path("pageProps").path("jobs");
 
-        List<Vaga> vagas = new ArrayList<>();
+        List<Job> result = new ArrayList<>();
         for (JsonNode job : jobs) {
-            vagas.add(paraVaga(job, empresa));
+            result.add(toJob(job, company));
         }
-        return vagas;
+        return result;
     }
 
-    private JsonNode fetchDataJson(Empresa empresa, String buildId) throws IOException, InterruptedException {
+    private JsonNode fetchDataJson(Company company, String buildId) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(empresa.dataUrl(buildId)))
+                .uri(URI.create(company.dataUrl(buildId)))
                 .timeout(Duration.ofSeconds(15))
                 .GET()
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() != 200) {
-            throw new IOException("Falha ao buscar vagas de " + empresa.subdominio()
+            throw new IOException("Falha ao buscar vagas de " + company.subdomain()
                     + " (status " + response.statusCode() + ")");
         }
         return objectMapper.readTree(response.body());
     }
 
-    private Vaga paraVaga(JsonNode job, Empresa empresa) {
+    private Job toJob(JsonNode job, Company company) {
         JsonNode address = job.path("workplace").path("address");
 
-        return new Vaga(
+        return new Job(
                 job.path("id").asLong(),
                 job.path("title").asText("").strip(),
-                empresa.nome(),
+                company.name(),
                 job.path("department").asText(""),
                 address.path("city").asText(""),
                 address.path("stateShortName").asText(""),
                 job.path("workplace").path("workplaceType").asText(""),
-                empresa.jobUrl(job.path("id").asLong())
+                company.jobUrl(job.path("id").asLong())
         );
     }
 }

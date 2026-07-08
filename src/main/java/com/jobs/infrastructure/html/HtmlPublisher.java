@@ -1,4 +1,8 @@
-package com.vagas;
+package com.jobs.infrastructure.html;
+
+import com.jobs.application.port.JobPublisher;
+import com.jobs.domain.ClassifiedJob;
+import com.jobs.domain.Job;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -6,36 +10,43 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public class HtmlExporter {
+public class HtmlPublisher implements JobPublisher {
 
-    public void exportar(List<VagaClassificada> vagas, Path destino) throws IOException {
-        StringBuilder linhas = new StringBuilder();
-        for (VagaClassificada vc : vagas) {
-            Vaga vaga = vc.vaga();
-            linhas.append("<tr>")
-                    .append("<td><a href=\"").append(escapar(vaga.link())).append("\" target=\"_blank\">")
-                    .append(escapar(vaga.titulo())).append("</a></td>")
-                    .append("<td>").append(escapar(vaga.empresa())).append("</td>")
-                    .append("<td>").append(escapar(vaga.departamento())).append("</td>")
-                    .append("<td>").append(escapar(vaga.cidade())).append("/").append(escapar(vaga.estado())).append("</td>")
-                    .append("<td>").append(escapar(vaga.modalidade())).append("</td>")
-                    .append("<td>").append(escapar(vc.area())).append("</td>")
-                    .append("<td>").append(escapar(vc.senioridade())).append("</td>")
+    private final Path destination;
+
+    public HtmlPublisher(Path destination) {
+        this.destination = destination;
+    }
+
+    @Override
+    public void publish(List<ClassifiedJob> jobs) throws IOException {
+        StringBuilder rows = new StringBuilder();
+        for (ClassifiedJob classifiedJob : jobs) {
+            Job job = classifiedJob.job();
+            rows.append("<tr>")
+                    .append("<td><a href=\"").append(escape(job.link())).append("\" target=\"_blank\">")
+                    .append(escape(job.title())).append("</a></td>")
+                    .append("<td>").append(escape(job.company())).append("</td>")
+                    .append("<td>").append(escape(job.department())).append("</td>")
+                    .append("<td>").append(escape(job.city())).append("/").append(escape(job.state())).append("</td>")
+                    .append("<td>").append(escape(job.workMode())).append("</td>")
+                    .append("<td>").append(escape(classifiedJob.area())).append("</td>")
+                    .append("<td>").append(escape(classifiedJob.seniority())).append("</td>")
                     .append("</tr>\n");
         }
 
         String html = HTML_TEMPLATE
-                .replace("{{TOTAL}}", String.valueOf(vagas.size()))
-                .replace("{{LINHAS}}", linhas.toString());
+                .replace("{{TOTAL}}", String.valueOf(jobs.size()))
+                .replace("{{ROWS}}", rows.toString());
 
-        Files.writeString(destino, html, StandardCharsets.UTF_8);
+        Files.writeString(destination, html, StandardCharsets.UTF_8);
     }
 
-    private String escapar(String valor) {
-        if (valor == null) {
+    private String escape(String value) {
+        if (value == null) {
             return "";
         }
-        return valor.replace("&", "&amp;")
+        return value.replace("&", "&amp;")
                 .replace("<", "&lt;")
                 .replace(">", "&gt;")
                 .replace("\"", "&quot;");
@@ -76,7 +87,7 @@ public class HtmlExporter {
             </tr>
             </thead>
             <tbody>
-            {{LINHAS}}
+            {{ROWS}}
             </tbody>
             </table>
             <script>
