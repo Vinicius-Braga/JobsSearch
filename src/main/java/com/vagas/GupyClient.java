@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +36,7 @@ public class GupyClient {
     private JsonNode fetchDataJson(Empresa empresa, String buildId) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(empresa.dataUrl(buildId)))
+                .timeout(Duration.ofSeconds(15))
                 .GET()
                 .build();
 

@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +35,7 @@ public class BuildIdExtractor {
     private String fetchHomeHtml(Empresa empresa) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(empresa.homeUrl()))
+                .timeout(Duration.ofSeconds(15))
                 .GET()
                 .build();
 
