@@ -1,5 +1,8 @@
 # Agregador de Vagas (Gupy)
 
+[![CI](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/ci.yml/badge.svg)](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/codeql.yml/badge.svg)](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/codeql.yml)
+
 Ferramenta em Java que coleta vagas de páginas de carreira que usam a plataforma Gupy, de várias empresas ao mesmo tempo, e consolida tudo num só lugar — com deduplicação, filtro por área/senioridade/região, visualização em HTML e notificação no Telegram.
 
 ## Pré-requisitos
