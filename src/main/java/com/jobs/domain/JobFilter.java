@@ -3,15 +3,17 @@ package com.jobs.domain;
 import java.text.Normalizer;
 import java.util.List;
 
-public record JobFilter(List<String> areas, List<String> seniorities, List<String> regions, boolean remoteOnly) {
+public record JobFilter(List<String> areas, List<String> seniorities, List<String> regions, boolean remoteOnly,
+        List<String> keywords) {
 
-    public boolean matches(String area, String seniority, String city, String state, String workMode) {
+    public boolean matches(String area, String seniority, String city, String state, String workMode, String title) {
         boolean areaOk = areas.isEmpty() || areas.stream().anyMatch(a -> a.equalsIgnoreCase(area));
         boolean seniorityOk = seniorities.isEmpty()
                 || seniorities.stream().anyMatch(s -> s.equalsIgnoreCase(seniority));
         boolean regionOk = regions.isEmpty() || regions.stream().anyMatch(r -> matchesRegion(r, city, state));
         boolean remoteOk = !remoteOnly || (workMode != null && normalize(workMode).contains("remote"));
-        return areaOk && seniorityOk && regionOk && remoteOk;
+        boolean keywordOk = keywords.isEmpty() || keywords.stream().anyMatch(k -> normalize(title).contains(normalize(k)));
+        return areaOk && seniorityOk && regionOk && remoteOk && keywordOk;
     }
 
     private boolean matchesRegion(String region, String city, String state) {

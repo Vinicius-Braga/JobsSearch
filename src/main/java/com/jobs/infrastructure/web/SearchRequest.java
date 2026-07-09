@@ -7,6 +7,7 @@ public record SearchRequest(List<CompanyDto> empresas, FiltroDto filtro) {
     public record CompanyDto(String subdominio, String nome) {
     }
 
-    public record FiltroDto(List<String> area, List<String> senioridade, List<String> regiao, Boolean remoto) {
+    public record FiltroDto(List<String> area, List<String> senioridade, List<String> regiao, Boolean remoto,
+            List<String> palavrasChave) {
     }
 }

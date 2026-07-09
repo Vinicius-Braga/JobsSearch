@@ -36,7 +36,7 @@ public class SearchJobsForProfileUseCase {
         } catch (Exception e) {
             System.out.println("Falha ao extrair critérios de busca do perfil, buscando sem pré-filtro: "
                     + e.getMessage());
-            return new JobFilter(List.of(), List.of(), List.of(), false);
+            return new JobFilter(List.of(), List.of(), List.of(), false, List.of());
         }
     }
 }

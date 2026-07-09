@@ -19,7 +19,7 @@ class AnthropicSearchCriteriaExtractorTest {
     @Test
     void parsesFullCriteria() throws Exception {
         String responseBody = """
-                {"content":[{"type":"text","text":"{\\"areas\\": [\\"TI\\"], \\"senioridades\\": [\\"Junior\\", \\"Pleno\\"], \\"regioes\\": [], \\"remoto\\": true}"}]}
+                {"content":[{"type":"text","text":"{\\"areas\\": [\\"TI\\"], \\"senioridades\\": [\\"Junior\\", \\"Pleno\\"], \\"regioes\\": [], \\"remoto\\": true, \\"palavrasChave\\": [\\"java\\"]}"}]}
                 """;
 
         JobFilter result = extractor.parseResponse(responseBody);
@@ -29,12 +29,14 @@ class AnthropicSearchCriteriaExtractorTest {
         assertEquals(2, result.seniorities().size());
         assertTrue(result.regions().isEmpty());
         assertTrue(result.remoteOnly());
+        assertEquals(1, result.keywords().size());
+        assertEquals("java", result.keywords().get(0));
     }
 
     @Test
     void parsesEmptyCriteriaWhenProfileIsVague() throws Exception {
         String responseBody = """
-                {"content":[{"type":"text","text":"{\\"areas\\": [], \\"senioridades\\": [], \\"regioes\\": [], \\"remoto\\": false}"}]}
+                {"content":[{"type":"text","text":"{\\"areas\\": [], \\"senioridades\\": [], \\"regioes\\": [], \\"remoto\\": false, \\"palavrasChave\\": []}"}]}
                 """;
 
         JobFilter result = extractor.parseResponse(responseBody);
@@ -43,6 +45,7 @@ class AnthropicSearchCriteriaExtractorTest {
         assertTrue(result.seniorities().isEmpty());
         assertTrue(result.regions().isEmpty());
         assertFalse(result.remoteOnly());
+        assertTrue(result.keywords().isEmpty());
     }
 
     @Test

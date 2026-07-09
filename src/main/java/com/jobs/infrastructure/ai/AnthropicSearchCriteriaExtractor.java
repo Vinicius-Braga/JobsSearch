@@ -22,7 +22,7 @@ public class AnthropicSearchCriteriaExtractor implements SearchCriteriaExtractor
     private static final String API_URL = "https://api.anthropic.com/v1/messages";
     private static final String ANTHROPIC_VERSION = "2023-06-01";
     private static final String MODEL = "claude-haiku-4-5-20251001";
-    private static final int MAX_TOKENS = 250;
+    private static final int MAX_TOKENS = 300;
 
     private static final String AREAS = "RH, TI, Comercial, Financeiro, Marketing, Logistica, Juridico, "
             + "Atendimento, Engenharia, Outro";
@@ -69,7 +69,7 @@ public class AnthropicSearchCriteriaExtractor implements SearchCriteriaExtractor
                 Categorias de senioridade válidas: %s.
 
                 Responda APENAS com um JSON no formato exato \
-                {"areas": [...], "senioridades": [...], "regioes": [...], "remoto": true|false}, \
+                {"areas": [...], "senioridades": [...], "regioes": [...], "remoto": true|false, "palavrasChave": [...]}, \
                 sem nenhum texto antes ou depois.
 
                 - "areas": lista com as áreas relevantes (normalmente 1), usando só os nomes exatos da \
@@ -79,6 +79,10 @@ public class AnthropicSearchCriteriaExtractor implements SearchCriteriaExtractor
                 - "regioes": lista de siglas de estado (ex: "RS") ou nomes de cidade mencionados \
                 explicitamente. Deixe vazio [] se não houver local específico ou se a busca for remota.
                 - "remoto": true se a pessoa quer especificamente vagas remotas, false caso contrário.
+                - "palavrasChave": lista de tecnologias/stack específicas mencionadas (ex: "java", ".net", \
+                "python", "react") que devem aparecer no título da vaga. Use termos curtos, prováveis de \
+                aparecer literalmente no título. Deixe vazio [] se o perfil não menciona uma tecnologia \
+                específica (ex: só fala da área/senioridade, sem citar stack).
                 """.formatted(profile.description(), AREAS, SENIORITIES);
 
         ObjectNode root = objectMapper.createObjectNode();
@@ -101,7 +105,8 @@ public class AnthropicSearchCriteriaExtractor implements SearchCriteriaExtractor
                 toList(criteria.path("areas")),
                 toList(criteria.path("senioridades")),
                 toList(criteria.path("regioes")),
-                criteria.path("remoto").asBoolean(false));
+                criteria.path("remoto").asBoolean(false),
+                toList(criteria.path("palavrasChave")));
     }
 
     private List<String> toList(JsonNode arrayNode) {
