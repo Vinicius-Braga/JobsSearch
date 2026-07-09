@@ -10,10 +10,22 @@ public record JobFilter(List<String> areas, List<String> seniorities, List<Strin
         boolean areaOk = areas.isEmpty() || areas.stream().anyMatch(a -> a.equalsIgnoreCase(area));
         boolean seniorityOk = seniorities.isEmpty()
                 || seniorities.stream().anyMatch(s -> s.equalsIgnoreCase(seniority));
-        boolean regionOk = regions.isEmpty() || regions.stream().anyMatch(r -> matchesRegion(r, city, state));
-        boolean remoteOk = !remoteOnly || (workMode != null && normalize(workMode).contains("remote"));
         boolean keywordOk = keywords.isEmpty() || keywords.stream().anyMatch(k -> normalize(title).contains(normalize(k)));
-        return areaOk && seniorityOk && regionOk && remoteOk && keywordOk;
+        return areaOk && seniorityOk && locationOk(city, state, workMode) && keywordOk;
+    }
+
+    // Região e "aceita remoto" não são dois requisitos que precisam bater ao mesmo tempo — são
+    // alternativas ("Porto Alegre OU remoto"). Vaga remota normalmente não tem cidade/estado
+    // preenchidos, então exigir os dois ao mesmo tempo nunca bateria em nenhuma vaga.
+    private boolean locationOk(String city, String state, String workMode) {
+        if (regions.isEmpty() && !remoteOnly) {
+            return true;
+        }
+        boolean isRemote = workMode != null && normalize(workMode).contains("remote");
+        if (remoteOnly && isRemote) {
+            return true;
+        }
+        return !regions.isEmpty() && regions.stream().anyMatch(r -> matchesRegion(r, city, state));
     }
 
     private boolean matchesRegion(String region, String city, String state) {

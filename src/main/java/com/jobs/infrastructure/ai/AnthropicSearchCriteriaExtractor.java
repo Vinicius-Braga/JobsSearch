@@ -77,8 +77,12 @@ public class AnthropicSearchCriteriaExtractor implements SearchCriteriaExtractor
                 - "senioridades": lista de senioridades mencionadas ou implícitas, usando só os nomes \
                 exatos da lista acima. Deixe vazio [] se não especificado.
                 - "regioes": lista de siglas de estado (ex: "RS") ou nomes de cidade mencionados \
-                explicitamente. Deixe vazio [] se não houver local específico ou se a busca for remota.
-                - "remoto": true se a pessoa quer especificamente vagas remotas, false caso contrário.
+                explicitamente como local aceitável. Deixe vazio [] se não houver cidade/estado específico \
+                mencionado (mesmo que a pessoa também aceite remoto).
+                - "remoto": true se a pessoa aceita ou quer vagas remotas — inclusive quando ela também \
+                menciona uma cidade (ex: "Porto Alegre ou remoto" → regioes=["Porto Alegre"], remoto=true; \
+                as duas coisas juntas significam "aceito qualquer uma das duas", não que a vaga precise \
+                ser as duas ao mesmo tempo). false se a pessoa não mencionar remoto.
                 - "palavrasChave": lista de tecnologias/stack específicas mencionadas (ex: "java", ".net", \
                 "python", "react") que devem aparecer no título da vaga. Use termos curtos, prováveis de \
                 aparecer literalmente no título. Deixe vazio [] se o perfil não menciona uma tecnologia \

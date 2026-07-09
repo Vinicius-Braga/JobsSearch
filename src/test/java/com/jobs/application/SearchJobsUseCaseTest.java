@@ -50,6 +50,27 @@ class SearchJobsUseCaseTest {
     }
 
     @Test
+    void regionAndRemoteAreAlternativesNotBothRequired() {
+        Company company = new Company("Vivo", "vivo");
+        // Vaga remota real: cidade/estado normalmente vêm vazios da Gupy.
+        Job remoteJob = new Job(1L, "Analista de RH Junior", "Vivo", "RH", "", "", "remote", "url1");
+        Job poaOnSiteJob = new Job(2L, "Assistente de RH", "Vivo", "RH", "Porto Alegre", "RS", "on-site", "url2");
+        Job saoPauloOnSiteJob = new Job(3L, "Auxiliar de RH", "Vivo", "RH", "Sao Paulo", "SP", "on-site", "url3");
+
+        JobSource fakeSource = fakeSourceFor(Map.of(company, List.of(remoteJob, poaOnSiteJob, saoPauloOnSiteJob)));
+        SearchJobsUseCase useCase = new SearchJobsUseCase(fakeSource, new Classifier());
+
+        // Perfil pediu "Porto Alegre ou remoto" -> regiao=["Porto Alegre"] e remoto=true.
+        JobFilter filter = new JobFilter(List.of(), List.of(), List.of("Porto Alegre"), true, List.of());
+        List<ClassifiedJob> result = useCase.search(List.of(company), filter);
+
+        assertEquals(2, result.size());
+        assertTrue(result.stream().anyMatch(cj -> cj.job().id() == 1L), "vaga remota devia bater mesmo sem cidade");
+        assertTrue(result.stream().anyMatch(cj -> cj.job().id() == 2L), "vaga presencial em Porto Alegre devia bater");
+        assertTrue(result.stream().noneMatch(cj -> cj.job().id() == 3L), "vaga presencial fora de Porto Alegre nao devia bater");
+    }
+
+    @Test
     void skipsCompanyThatFailsWithoutFailingWholeSearch() {
         Company broken = new Company("Broken", "broken");
         Company ok = new Company("Vivo", "vivo");
