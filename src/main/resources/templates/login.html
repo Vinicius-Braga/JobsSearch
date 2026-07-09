@@ -2,37 +2,62 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
-<title>Entrar — Agregador de Vagas</title>
+<title>Entrar — JobSearch</title>
+<th:block th:replace="~{fragments/styles :: global-styles}"></th:block>
 <style>
-    body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex; align-items: center;
-           justify-content: center; height: 100vh; margin: 0; }
-    .box { background: white; padding: 32px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-           width: 100%; max-width: 320px; }
-    h1 { font-size: 20px; margin-top: 0; }
-    label { display: block; margin-top: 12px; font-size: 13px; color: #444; }
-    input { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-    button { margin-top: 20px; width: 100%; padding: 10px; background: #2d2d2d; color: white; border: none;
-              border-radius: 4px; cursor: pointer; font-size: 14px; }
-    button:hover { background: #444; }
-    .erro { color: #b91c1c; font-size: 13px; margin-top: 12px; }
-    .ok { color: #2f6b5e; font-size: 13px; margin-top: 12px; }
-    .cadastro { display: block; text-align: center; margin-top: 16px; font-size: 13px; color: #1a5fb4; text-decoration: none; }
-    .cadastro:hover { text-decoration: underline; }
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+    .card { display: flex; width: 100%; max-width: 960px; min-height: 560px; background: white;
+            border-radius: 20px; overflow: hidden; box-shadow: var(--card-shadow); }
+    .panel-left { flex: 1; background: linear-gradient(var(--navy-800), var(--navy-900)); color: white;
+                  padding: 40px; display: flex; flex-direction: column; justify-content: space-between; }
+    .brand { font-weight: 800; font-size: 18px; }
+    .brand .dot { color: var(--amber-500); }
+    .headline { font-size: 26px; font-weight: 800; line-height: 1.25; margin: 0 0 12px; }
+    .subtext { font-size: 14px; color: oklch(0.85 0.02 250); line-height: 1.5; max-width: 34ch; }
+    .footer-note { font-size: 12px; color: oklch(0.6 0.02 250); }
+    .panel-right { flex: 1; padding: 56px 64px; display: flex; flex-direction: column; justify-content: center; }
+    h1 { font-size: 26px; font-weight: 800; margin: 0 0 4px; color: var(--ink); }
+    .lede { font-size: 14px; color: var(--ink-muted); margin: 0 0 28px; }
+    label { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-muted); margin-bottom: 6px; margin-top: 18px; }
+    input { width: 100%; height: 44px; padding: 0 14px; background: var(--input-bg); border: 1px solid var(--input-border);
+            border-radius: 11px; font-size: 14px; font-family: inherit; }
+    input:focus { outline: none; border-color: var(--navy-800); }
+    button.primary { width: 100%; margin-top: 26px; height: 46px; border: none; border-radius: 11px;
+                      background: var(--navy-800); color: white; font-weight: 700; font-size: 15px; cursor: pointer;
+                      font-family: inherit; transition: background .2s; }
+    button.primary:hover { background: var(--navy-900); }
+    .erro { color: var(--error); font-size: 13px; margin-top: 14px; }
+    .ok { color: var(--success); font-size: 13px; margin-top: 14px; }
+    .switch { text-align: center; margin-top: 20px; font-size: 13.5px; color: var(--ink-muted); }
+    .switch a { color: var(--navy-800); font-weight: 700; text-decoration: none; }
+    .switch a:hover { text-decoration: underline; }
+    @media (max-width: 760px) { .card { flex-direction: column; max-width: 420px; } .panel-left { display: none; } }
 </style>
 </head>
 <body>
-<div class="box">
-    <h1>Agregador de Vagas</h1>
-    <form th:action="@{/login}" method="post">
-        <label>Usuário</label>
-        <input type="text" name="username" autofocus>
-        <label>Senha</label>
-        <input type="password" name="password">
-        <button type="submit">Entrar</button>
-    </form>
-    <p class="erro" th:if="${param.error}">Usuário ou senha inválidos.</p>
-    <p class="ok" th:if="${param.cadastro}">Conta criada! Já pode entrar.</p>
-    <a class="cadastro" th:href="@{/cadastro}">Criar uma conta</a>
+<div class="card">
+    <div class="panel-left">
+        <div class="brand">JobSearch<span class="dot">.</span></div>
+        <div>
+            <p class="headline">Sua próxima vaga, encontrada com critério.</p>
+            <p class="subtext">A gente cruza vagas reais com o que você procura, e te diz exatamente por quê cada uma combina.</p>
+        </div>
+        <p class="footer-note">Feito pra quem está procurando emprego de verdade.</p>
+    </div>
+    <div class="panel-right">
+        <h1>Entrar</h1>
+        <p class="lede">Bom te ver de novo.</p>
+        <form th:action="@{/login}" method="post">
+            <label>Usuário</label>
+            <input type="text" name="username" autofocus>
+            <label>Senha</label>
+            <input type="password" name="password">
+            <p class="erro" th:if="${param.error}">Usuário ou senha inválidos. Tente novamente.</p>
+            <p class="ok" th:if="${param.cadastro}">Conta criada! Já pode entrar.</p>
+            <button class="primary" type="submit">Entrar</button>
+        </form>
+        <p class="switch">Não tem conta? <a th:href="@{/cadastro}">Criar uma conta</a></p>
+    </div>
 </div>
 </body>
 </html>

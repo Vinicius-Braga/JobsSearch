@@ -4,82 +4,114 @@
 <meta charset="UTF-8">
 <meta name="_csrf" th:content="${_csrf.token}">
 <meta name="_csrf_header" th:content="${_csrf.headerName}">
-<title>Agregador de Vagas</title>
+<title>JobSearch</title>
+<th:block th:replace="~{fragments/styles :: global-styles}"></th:block>
 <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
-    .wrap { max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; }
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    h1 { font-size: 20px; margin: 0; }
-    .profile-box { background: white; padding: 16px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-                   margin-bottom: 20px; }
-    .profile-box p { margin: 0 0 8px; color: #333; }
-    .profile-box .empty { color: #999; font-style: italic; }
-    .profile-box a { color: #1a5fb4; text-decoration: none; font-size: 13px; }
+    body { padding: 40px 20px; }
+    .app-card { max-width: 1280px; margin: 0 auto; border-radius: 20px; overflow: hidden;
+                box-shadow: var(--card-shadow); background: white; }
+
+    header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; }
+    .brand { font-weight: 800; font-size: 18px; color: var(--ink); }
+    .brand .dot { color: var(--amber-500); }
+    nav { display: flex; align-items: center; gap: 20px; }
+    nav a { color: var(--ink-muted); text-decoration: none; font-size: 13.5px; font-weight: 600; }
+    nav a:hover { color: var(--ink); }
+    form.logout button { background: none; border: 1px solid var(--input-border); border-radius: 9px; padding: 8px 16px;
+                          font-family: inherit; font-size: 13px; font-weight: 700; color: var(--ink-muted); cursor: pointer;
+                          transition: border-color .2s, color .2s; }
+    form.logout button:hover { border-color: var(--ink-muted); color: var(--ink); }
+
+    /* --- Hero --- */
+    .hero { background: linear-gradient(var(--navy-800), var(--navy-900)); padding: 48px 40px 56px; text-align: center; }
+    .hero h1 { color: white; font-size: 24px; font-weight: 800; margin: 0 0 24px; }
+
+    .profile-box { max-width: 560px; margin: 0 auto 44px; text-align: left; background: var(--glass-bg);
+                   border: 1px solid var(--glass-border); border-radius: 14px; padding: 14px 18px; }
+    .profile-box p { margin: 0 0 6px; color: oklch(0.92 0.01 250); font-size: 14px; line-height: 1.5; }
+    .profile-box p.empty { font-style: italic; color: oklch(0.75 0.02 250); }
+    .profile-box a { color: var(--amber-200); font-size: 12.5px; font-weight: 700; text-decoration: none; }
     .profile-box a:hover { text-decoration: underline; }
-    form.logout button { background: none; border: none; color: #666; cursor: pointer; font-size: 13px;
-                          text-decoration: underline; padding: 0; }
 
     /* --- Radar --- */
-    .radar { position: relative; width: 140px; height: 140px; margin: 30px auto; display: flex;
-             align-items: center; justify-content: center; }
-    .ring { position: absolute; width: 120px; height: 120px; border-radius: 50%;
-            border: 2px solid #2f9e6e; opacity: 0; pointer-events: none; }
-    .radar.active .ring { animation: radar-pulse 2.4s ease-out infinite; }
-    .radar.active .ring.r2 { animation-delay: 0.8s; }
-    .radar.active .ring.r3 { animation-delay: 1.6s; }
-    .radar.loading .ring { border-color: #1a5fb4; animation-duration: 0.9s; }
-    @keyframes radar-pulse {
-        0%   { width: 120px; height: 120px; opacity: 0.55; }
-        100% { width: 230px; height: 230px; opacity: 0; }
+    .radar-wrap { position: relative; width: 200px; height: 200px; margin: 0 auto; display: flex;
+                  align-items: center; justify-content: center; }
+    .ring { position: absolute; border-radius: 50%; border: 3px solid transparent; }
+    .ring1 { inset: 0; border-top-color: oklch(0.85 0.01 90); animation: orbitSpin 40s linear infinite; }
+    .ring2 { inset: 18px; animation: orbitSpinRev 40s linear infinite; }
+    .radar-wrap.active .ring1, .radar-wrap.loading .ring1 {
+        border-top-color: var(--amber-500); border-right-color: oklch(0.74 0.15 70 / 0.3); animation-duration: 5s;
     }
-    .radar-btn { position: relative; z-index: 2; width: 120px; height: 120px; border-radius: 50%; border: none;
-                 color: white; font-weight: 600; font-size: 14px; cursor: not-allowed; background: #c7c7c7;
-                 transition: background 0.35s, box-shadow 0.35s; }
-    .radar.active .radar-btn { cursor: pointer; background: radial-gradient(circle at 35% 30%, #3bb583, #1a5fb4);
-                                box-shadow: 0 0 24px rgba(47,158,110,0.55); }
-    .radar.loading .radar-btn { background: radial-gradient(circle at 35% 30%, #1a5fb4, #2f9e6e); cursor: wait; }
-    .radar-hint { text-align: center; font-size: 12px; color: #999; margin-top: -14px; margin-bottom: 20px; }
+    .radar-wrap.active .ring2, .radar-wrap.loading .ring2 {
+        border-top-color: oklch(0.64 0.16 65 / 0.6); animation-duration: 7s;
+    }
+    .radar-wrap.loading .ring1 { animation-duration: 1.4s; }
+    .radar-wrap.loading .ring2 { animation-duration: 2s; }
+    @keyframes orbitSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes orbitSpinRev { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
 
-    .erro { color: #b91c1c; background: #fef2f2; padding: 10px 14px; border-radius: 4px; margin-bottom: 16px; }
-    table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
-    th, td { padding: 10px 12px; border-bottom: 1px solid #eee; text-align: left; font-size: 14px; }
-    th { background: #2d2d2d; color: white; }
-    .nota { font-weight: bold; text-align: center; width: 60px; }
-    .justificativa { color: #555; font-size: 13px; }
-    a.aplicar { color: #1a5fb4; text-decoration: none; white-space: nowrap; }
+    .radar-btn { position: relative; z-index: 2; width: 126px; height: 126px; border-radius: 50%; border: none;
+                 background: oklch(0.88 0.006 250); color: white; font-family: inherit; font-weight: 700;
+                 font-size: 14.5px; cursor: not-allowed; transition: background .35s, box-shadow .35s; }
+    .radar-wrap.active .radar-btn, .radar-wrap.loading .radar-btn {
+        background: linear-gradient(135deg, var(--amber-500), var(--amber-600));
+        box-shadow: 0 0 30px oklch(0.74 0.15 70 / 0.45);
+        cursor: pointer;
+    }
+    .radar-wrap.loading .radar-btn { cursor: wait; }
+    .radar-hint { text-align: center; color: oklch(0.65 0.02 250); font-size: 12.5px; margin-top: 16px; }
+
+    /* --- Results --- */
+    .results { background: var(--cream-100); padding: 32px 40px 56px; min-height: 100px; }
+    .resumo { color: var(--ink-muted); font-size: 13px; margin: 0 0 10px; }
+    .aviso { color: var(--error); font-size: 13px; margin: 0 0 14px; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 1px 3px rgba(20, 20, 10, .06); }
+    th, td { padding: 14px 16px; text-align: left; font-size: 13.5px; border-bottom: 1px solid var(--cream-50); }
+    th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted);
+         font-weight: 700; background: var(--cream-50); }
+    tr:last-child td { border-bottom: none; }
+    .nota { font-weight: 800; color: var(--navy-800); }
+    .justificativa { color: var(--ink-soft); }
+    a.aplicar { color: var(--navy-800); font-weight: 700; text-decoration: none; white-space: nowrap; }
     a.aplicar:hover { text-decoration: underline; }
-    .resumo { color: #666; font-size: 13px; margin-bottom: 10px; }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="app-card">
     <header>
-        <h1>Agregador de Vagas</h1>
-        <form class="logout" th:action="@{/logout}" method="post">
-            <button type="submit">Sair</button>
-        </form>
+        <div class="brand">JobSearch<span class="dot">.</span></div>
+        <nav>
+            <a th:href="@{/perfil/editar}">Editar perfil</a>
+            <form class="logout" th:action="@{/logout}" method="post">
+                <button type="submit">Sair</button>
+            </form>
+        </nav>
     </header>
 
-    <div class="profile-box">
-        <p th:if="${profile != null and !#strings.isEmpty(profile)}" th:text="${profile}"></p>
-        <p class="empty" th:unless="${profile != null and !#strings.isEmpty(profile)}">
-            Você ainda não tem um perfil configurado.
+    <section class="hero">
+        <h1>Vamos encontrar sua próxima vaga</h1>
+
+        <div class="profile-box">
+            <p th:if="${profile != null and !#strings.isEmpty(profile)}" th:text="${profile}"></p>
+            <p class="empty" th:unless="${profile != null and !#strings.isEmpty(profile)}">
+                Ainda não conhecemos você — conte pra gente que tipo de vaga procura e ativamos a busca automaticamente.
+            </p>
+            <a th:href="@{/perfil/editar}">Editar perfil →</a>
+        </div>
+
+        <div id="radar" class="radar-wrap" th:classappend="${profile != null and !#strings.isEmpty(profile)} ? 'active' : ''">
+            <span class="ring ring1"></span>
+            <span class="ring ring2"></span>
+            <button id="btnBuscar" class="radar-btn"
+                    th:disabled="${profile == null or #strings.isEmpty(profile)}">Buscar vagas</button>
+        </div>
+        <p class="radar-hint" th:if="${profile == null or #strings.isEmpty(profile)}">
+            Edite seu perfil para ativar a busca.
         </p>
-        <a th:href="@{/perfil/editar}">Editar perfil</a>
-    </div>
+    </section>
 
-    <div id="radar" class="radar" th:classappend="${profile != null and !#strings.isEmpty(profile)} ? 'active' : ''">
-        <span class="ring r1"></span>
-        <span class="ring r2"></span>
-        <span class="ring r3"></span>
-        <button id="btnBuscar" class="radar-btn"
-                th:disabled="${profile == null or #strings.isEmpty(profile)}">Buscar vagas</button>
-    </div>
-    <p class="radar-hint" th:if="${profile == null or #strings.isEmpty(profile)}">
-        Edite seu perfil pra ativar a busca.
-    </p>
-
-    <div id="resultsArea"></div>
+    <section class="results" id="resultsArea"></section>
 </div>
 
 <script th:inline="javascript">
@@ -88,6 +120,7 @@
     const resultsArea = document.getElementById('resultsArea');
     const csrfToken = document.querySelector('meta[name="_csrf"]').content;
     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+    let searchedOnce = false;
 
     btn.addEventListener('click', async () => {
         if (btn.disabled) {
@@ -95,7 +128,6 @@
         }
         radar.classList.add('loading');
         btn.disabled = true;
-        const originalLabel = btn.textContent;
         btn.textContent = 'Buscando...';
         resultsArea.innerHTML = '';
 
@@ -107,19 +139,20 @@
             }
             const data = await response.json();
             renderResults(data);
+            searchedOnce = true;
         } catch (err) {
-            resultsArea.innerHTML = '<p class="erro">Falha na busca: ' + escapeHtml(err.message) + '</p>';
+            resultsArea.innerHTML = '<p class="aviso">Falha na busca: ' + escapeHtml(err.message) + '</p>';
         } finally {
             radar.classList.remove('loading');
             btn.disabled = false;
-            btn.textContent = originalLabel;
+            btn.textContent = searchedOnce ? 'Buscar novamente' : 'Buscar vagas';
         }
     });
 
     function renderResults(data) {
         let html = '';
         if (data.aviso) {
-            html += '<p class="erro">' + escapeHtml(data.aviso) + '</p>';
+            html += '<p class="aviso">' + escapeHtml(data.aviso) + '</p>';
         }
         html += '<p class="resumo">' + data.results.length + ' vaga(s) encontrada(s)</p>';
 

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="global-styles">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy-900: oklch(0.16 0.06 255);
+            --navy-800: oklch(0.28 0.08 255);
+            --ink: oklch(0.24 0.02 250);
+            --ink-muted: oklch(0.4 0.02 250);
+            --ink-soft: oklch(0.46 0.02 250);
+            --amber-500: oklch(0.74 0.15 70);
+            --amber-600: oklch(0.64 0.16 65);
+            --amber-200: oklch(0.88 0.1 70);
+            --cream-50: oklch(0.98 0.006 90);
+            --cream-100: oklch(0.97 0.008 90);
+            --input-bg: oklch(0.98 0.005 90);
+            --input-border: oklch(0.87 0.01 90);
+            --page-bg: oklch(0.9 0.006 260);
+            --error: oklch(0.52 0.18 25);
+            --success: oklch(0.55 0.12 150);
+            --glass-bg: oklch(1 0 0 / 0.08);
+            --glass-border: oklch(1 0 0 / 0.14);
+            --card-shadow: 0 1px 3px rgba(20, 20, 10, .08), 0 30px 70px rgba(20, 20, 10, .16);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: var(--page-bg);
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            color: var(--ink);
+        }
+    </style>
+</th:block>
+</body>
+</html>

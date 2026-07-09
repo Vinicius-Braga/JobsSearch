@@ -62,9 +62,10 @@ Objetivo: abrir pra mais gente além da usuária de teste, com cobrança.
 - [ ] Integração com Stripe (assinatura recorrente)
 - [ ] Limite de teste grátis (ex: 3 buscas sem cartão)
 - [x] **Frontend mais sofisticado**: botão de busca grande com animação de radar (anéis pulsando), cinza/desabilitado sem perfil, colorido/ativo com perfil salvo, muda de cor e acelera a pulsação durante a busca. `POST /buscar` virou endpoint JSON (`BuscarResponse`) chamado via `fetch()` — a busca roda em background, sem recarregar a página, resolvendo a limitação de UX anotada na Fase 3.
+- [x] **Redesign visual completo**, feito no Claude Design e implementado com fidelidade em Thymeleaf/CSS puro (sem framework JS): telas de login/cadastro/perfil em painel dividido (navy + branco), dashboard com hero em gradiente navy, card de perfil em "vidro fosco" (glassmorphism), radar reconstruído com a mecânica exata do mockup (dois anéis com borda parcial girando em direções/velocidades opostas via CSS `animation`), fonte Plus Jakarta Sans, paleta em `oklch()`. Estilos compartilhados centralizados em `fragments/styles.html`. Testado de ponta a ponta com dados reais (Postgres + IA) e visualmente idêntico ao mockup em todos os estados (login, cadastro, perfil, radar desabilitado/ativo/buscando, resultados).
 - [ ] Decidir hospedagem (Railway/Render/VPS/AWS) e colocar no ar
 
-**Testado de ponta a ponta:** cadastro de conta nova → login → perfil isolado por usuário (conta nova sem dados da conta anterior) → perfil salvo persiste no Postgres real (Supabase) → busca assíncrona real (Gupy + IA) retorna 6 vagas ordenadas por nota via JSON, renderizadas pelo JS sem reload — confirmado via `curl` com sessão autenticada e visualmente no navegador (radar ativo → estado de busca → resultados).
+**Testado de ponta a ponta:** cadastro de conta nova → login → perfil isolado por usuário (conta nova sem dados da conta anterior) → perfil salvo persiste no Postgres real (Supabase) → busca assíncrona real (Gupy + IA) retorna 6 vagas ordenadas por nota via JSON, renderizadas pelo JS sem reload — confirmado via `curl` com sessão autenticada e visualmente no navegador (radar ativo → estado de busca → resultados), incluindo o redesign visual completo.
 
 ## Backlog (pós-V2, sem prioridade definida)
 
