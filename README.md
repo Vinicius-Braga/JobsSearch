@@ -16,13 +16,25 @@ Aplicação web em Java/Spring Boot que coleta vagas de páginas de carreira que
 
 ## Como rodar
 
+Configure o `.env` primeiro (veja a seção **Configuração** abaixo), depois escolha uma das duas formas:
+
+### Direto com Gradle
+
 ```
 git clone https://github.com/Vinicius-Braga/JobsSearch.git
 cd JobsSearch
 .\gradlew.bat bootRun
 ```
 
-Acesse **http://localhost:8080**, clique em **Criar uma conta** pra se cadastrar, e faça login.
+### Com Docker
+
+```
+docker compose up --build
+```
+
+Sobe a aplicação inteira num container (só a aplicação — o banco é o Postgres externo configurado no `.env`, ex: Supabase). `empresas.txt` e `filtro.txt` são montados como volume, então dá pra editá-los sem rebuildar a imagem.
+
+Em ambos os casos, acesse **http://localhost:8080**, clique em **Criar uma conta** pra se cadastrar, e faça login.
 
 ## Configuração
 

@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./empresas.txt:/app/empresas.txt:ro
+      - ./filtro.txt:/app/filtro.txt:ro
+    restart: unless-stopped
