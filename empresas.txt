@@ -8,3 +8,43 @@ stone,Stone
 renner,Lojas Renner
 ambev,Ambev
 movida,Movida
+cea,C&A
+riachuelo,Riachuelo
+petz,Petz
+ecorodovias,Ecorodovias
+suzano,Suzano
+csn,CSN
+usiminas,Usiminas
+weg,WEG
+unidas,Unidas
+ipiranga,Ipiranga
+vibraenergia,Vibra Energia
+cosan,Cosan
+cvccorp,CVC Corp
+americanas,Americanas
+vivara,Vivara
+dafiti,Dafiti
+sicredi,Sicredi
+meliuz,Meliuz
+cyrela,Cyrela
+jsl,JSL
+grupoboticario,Grupo Boticario
+gruporbs,RBS
+voeazul,Azul
+cogna,Cogna Educacao
+anima,Anima Educacao
+yduqs,YDUQS
+wine,Wine
+creditas,Creditas
+JHSF,JHSF
+cury,Cury Construtora
+tenda,Construtora Tenda
+compass,Compass Group
+eurofarma,Eurofarma
+cimed,Cimed
+gpa,GPA
+assai,Assai Atacadista
+panvel,Panvel Farmacias
+slcagricola,SLC Agricola
+tigre,Tigre
+honda,Honda do Brasil

@@ -64,6 +64,8 @@ subdominio,Nome que aparece na tela
 
 O "subdomínio" é a parte antes de `.gupy.io` na URL da página de carreiras da empresa (ex: `https://vivo.gupy.io/` → subdomínio é `vivo`).
 
+Vem com 50 empresas reais que usam Gupy, verificadas uma a uma (cada linha testada com uma chamada HTTP real antes de entrar na lista). Quanto mais empresas, mais tempo a busca leva (a coleta é sequencial, uma empresa por vez) — com as 50 atuais, uma busca leva cerca de 1 minuto.
+
 ### Perfil (dentro do app)
 
 O perfil de busca é editado direto na tela, em texto livre, depois de fazer login (ex: *"Desenvolvedor Backend Jr, especialidade Java, quero vagas remotas, junior ou pleno"*). Fica salvo no Postgres, isolado por usuário (cada conta só vê o próprio perfil e histórico).
