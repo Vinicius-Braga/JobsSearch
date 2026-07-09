@@ -1,9 +1,9 @@
 package com.jobs.infrastructure.web;
 
-import com.jobs.application.SearchAndScoreJobsUseCase;
-import com.jobs.application.SearchOutcome;
+import com.jobs.application.SearchJobsForProfileUseCase;
 import com.jobs.application.port.CompanyLoader;
 import com.jobs.application.port.ProfileStore;
+import com.jobs.domain.ClassifiedJob;
 import com.jobs.domain.Company;
 import com.jobs.domain.UserProfile;
 import org.springframework.http.MediaType;
@@ -21,13 +21,13 @@ import java.util.List;
 public class DashboardController {
 
     private final ProfileStore profileStore;
-    private final SearchAndScoreJobsUseCase searchAndScoreJobsUseCase;
+    private final SearchJobsForProfileUseCase searchJobsForProfileUseCase;
     private final CompanyLoader companyLoader;
 
-    public DashboardController(ProfileStore profileStore, SearchAndScoreJobsUseCase searchAndScoreJobsUseCase,
+    public DashboardController(ProfileStore profileStore, SearchJobsForProfileUseCase searchJobsForProfileUseCase,
             CompanyLoader companyLoader) {
         this.profileStore = profileStore;
-        this.searchAndScoreJobsUseCase = searchAndScoreJobsUseCase;
+        this.searchJobsForProfileUseCase = searchJobsForProfileUseCase;
         this.companyLoader = companyLoader;
     }
 
@@ -55,19 +55,13 @@ public class DashboardController {
     public BuscarResponse buscar(Principal principal) throws Exception {
         String description = currentDescription(principal);
         if (description == null || description.isBlank()) {
-            return new BuscarResponse(0, List.of(), "Edite seu perfil antes de buscar vagas.");
+            return new BuscarResponse(List.of(), "Edite seu perfil antes de buscar vagas.");
         }
 
         List<Company> companies = companyLoader.load();
-        SearchOutcome outcome = searchAndScoreJobsUseCase.search(companies, new UserProfile(description));
+        List<ClassifiedJob> results = searchJobsForProfileUseCase.search(companies, new UserProfile(description));
 
-        String aviso = null;
-        if (outcome.hasUnscoredMatches()) {
-            aviso = (outcome.matchedCount() - outcome.scored().size())
-                    + " vaga(s) bateram no filtro mas não puderam ser pontuadas pela IA — verifique se o "
-                    + "ANTHROPIC_API_KEY está configurado corretamente no .env.";
-        }
-        return new BuscarResponse(outcome.matchedCount(), outcome.scored(), aviso);
+        return new BuscarResponse(results, null);
     }
 
     private String currentDescription(Principal principal) {

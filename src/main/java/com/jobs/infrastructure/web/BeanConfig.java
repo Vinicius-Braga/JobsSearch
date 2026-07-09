@@ -2,6 +2,7 @@ package com.jobs.infrastructure.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobs.application.SearchAndScoreJobsUseCase;
+import com.jobs.application.SearchJobsForProfileUseCase;
 import com.jobs.application.SearchJobsUseCase;
 import com.jobs.application.port.CompanyLoader;
 import com.jobs.application.port.FitScorer;
@@ -64,9 +65,17 @@ public class BeanConfig {
         return new AnthropicSearchCriteriaExtractor(httpClient, objectMapper, anthropicProperties.apiKey());
     }
 
+    // Pronto pra religar a pontuação por IA por vaga — hoje não é chamado no fluxo web
+    // (ver SearchJobsForProfileUseCase), decisão de custo/simplicidade tomada por enquanto.
     @Bean
     public SearchAndScoreJobsUseCase searchAndScoreJobsUseCase(SearchJobsUseCase searchJobsUseCase, FitScorer fitScorer,
             SearchCriteriaExtractor searchCriteriaExtractor) {
         return new SearchAndScoreJobsUseCase(searchJobsUseCase, fitScorer, searchCriteriaExtractor);
+    }
+
+    @Bean
+    public SearchJobsForProfileUseCase searchJobsForProfileUseCase(SearchJobsUseCase searchJobsUseCase,
+            SearchCriteriaExtractor searchCriteriaExtractor) {
+        return new SearchJobsForProfileUseCase(searchJobsUseCase, searchCriteriaExtractor);
     }
 }

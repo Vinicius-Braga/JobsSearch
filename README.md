@@ -75,8 +75,10 @@ A cada busca, a IA lê esse texto e decide sozinha os critérios de pré-filtro 
 1. Rode `.\gradlew.bat bootRun` (ou `docker compose up --build`) e acesse http://localhost:8080.
 2. Clique em **Criar uma conta** (usuário + senha) e depois faça login.
 3. Clique em **Editar perfil** e descreva em texto livre o que você procura.
-4. Na tela inicial, o botão de busca fica colorido/ativo assim que há um perfil salvo. Clique nele — a busca roda em background (com uma animação de radar), sem recarregar a página: a IA extrai os critérios do seu perfil, filtra as vagas das empresas do `empresas.txt`, e pontua cada vaga pré-filtrada (até 40 por busca, por custo).
-5. A lista aparece ordenada por nota, com link direto pra aplicar.
+4. Na tela inicial, o botão de busca fica colorido/ativo assim que há um perfil salvo. Clique nele — a busca roda em background (com uma animação de radar), sem recarregar a página: a IA extrai os critérios do seu perfil (área, senioridade, região, remoto ou não) e filtra as vagas das empresas do `empresas.txt`.
+5. A lista aparece com as vagas encontradas (título, empresa, local, modalidade, área, senioridade) e link direto pra aplicar.
+
+> A pontuação de aderência por vaga (nota + justificativa via IA) existe no código (`FitScorer`/`AnthropicFitScorer`), mas está desligada do fluxo principal por enquanto — ver o [roadmap](docs/ROADMAP_V2.md).
 
 ## Estrutura do código
 
