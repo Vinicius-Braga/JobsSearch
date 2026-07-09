@@ -50,22 +50,22 @@ regiao=RS,Porto Alegre
 
 Deixe uma linha vazia, apagada ou comentada com `#` pra não filtrar por aquele campo (traz todas as opções). Os valores são combinados com "E" — uma vaga só aparece se bater em todos os campos preenchidos.
 
-### `telegram.txt` — notificação automática (opcional)
+### `.env` — credenciais (Telegram e, na V2, a API da Claude)
 
 Se você quiser receber um aviso no Telegram toda vez que surgir uma vaga nova que bate no filtro:
 
 1. No Telegram, fale com o **@BotFather** e mande `/newbot` pra criar um bot. Guarde o token que ele te der.
 2. Crie um grupo (ou canal) e adicione o bot como membro (em canal, como administrador).
 3. Mande uma mensagem qualquer no grupo/canal.
-4. Crie o arquivo `telegram.txt` na raiz do projeto:
+4. Crie o arquivo `.env` na raiz do projeto:
    ```
-   token=SEU_TOKEN_AQUI
+   TELEGRAM_TOKEN=SEU_TOKEN_AQUI
    ```
-5. Rode o programa uma vez — ele descobre e salva o `chat_id` automaticamente no próprio `telegram.txt`.
+5. Rode o programa uma vez — ele descobre e salva o `TELEGRAM_CHAT_ID` automaticamente no próprio `.env`.
 
-**Esse arquivo contém uma credencial — nunca commite ele.** Já está no `.gitignore`.
+**Esse arquivo contém credenciais — nunca commite ele.** Já está no `.gitignore`.
 
-Se `telegram.txt` não existir, o programa roda normalmente, só sem notificar.
+Se `.env` não existir (ou não tiver `TELEGRAM_TOKEN`), o programa roda normalmente, só sem notificar.
 
 ## Arquivos gerados
 

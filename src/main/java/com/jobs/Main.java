@@ -5,6 +5,7 @@ import com.jobs.application.RunCycleUseCase;
 import com.jobs.application.port.Notifier;
 import com.jobs.domain.Classifier;
 import com.jobs.infrastructure.config.CompanyFileLoader;
+import com.jobs.infrastructure.config.EnvLoader;
 import com.jobs.infrastructure.csv.CsvExporter;
 import com.jobs.infrastructure.csv.CsvPublisher;
 import com.jobs.infrastructure.csv.CsvJobRepository;
@@ -21,6 +22,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public class Main {
 
@@ -35,8 +37,10 @@ public class Main {
                 .build();
         ObjectMapper objectMapper = new ObjectMapper();
 
+        Map<String, String> env = EnvLoader.load(Path.of(".env"));
+
         RunCycleUseCase useCase = buildUseCase(httpClient, objectMapper);
-        Notifier telegramNotifier = configureTelegram(httpClient, objectMapper);
+        Notifier telegramNotifier = configureTelegram(httpClient, objectMapper, env);
 
         boolean isFirstEverRun = !useCase.hasHistory();
 
@@ -72,11 +76,11 @@ public class Main {
         );
     }
 
-    private static Notifier configureTelegram(HttpClient httpClient, ObjectMapper objectMapper) throws IOException {
-        Path telegramFile = Path.of("telegram.txt");
-        TelegramConfig config = TelegramConfig.load(telegramFile);
+    private static Notifier configureTelegram(HttpClient httpClient, ObjectMapper objectMapper,
+            Map<String, String> env) throws IOException {
+        TelegramConfig config = TelegramConfig.from(env);
         if (config == null) {
-            System.out.println("telegram.txt não configurado - notificações desativadas.");
+            System.out.println(".env não tem TELEGRAM_TOKEN configurado - notificações desativadas.");
             return null;
         }
 
@@ -86,7 +90,7 @@ public class Main {
 
         try {
             String chatId = TelegramNotifier.discoverChatId(httpClient, objectMapper, config.token());
-            TelegramConfig.saveChatId(telegramFile, config.token(), chatId);
+            TelegramConfig.saveChatId(Path.of(".env"), env, config.token(), chatId);
             System.out.println("Chat do Telegram descoberto e salvo: " + chatId);
             return new TelegramNotifier(httpClient, objectMapper, config.token(), chatId);
         } catch (Exception e) {

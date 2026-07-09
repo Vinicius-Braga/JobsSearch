@@ -26,14 +26,16 @@ Objetivo: provar que o motor da V1 funciona sob demanda (uma chamada HTTP), não
 
 Objetivo: dado um perfil em texto livre e uma vaga, obter nota 1-10 + justificativa. Testado isolado, fora do fluxo real.
 
-- [ ] Criar `UserProfile` (domain) — só um texto livre por enquanto, sem persistência ainda
-- [ ] Criar port `application/port/FitScorer` — `score(UserProfile profile, ClassifiedJob job) -> FitScore { nota, justificativa }`
-- [ ] Implementar `AnthropicFitScorer` em `infrastructure/ai/` usando a API da Claude (Haiku 4.5)
-- [ ] Config de API key seguindo o padrão do `telegram.txt` (arquivo local, no `.gitignore`, nunca commitado)
-- [ ] Decidir: chamada por vaga ou batch de vagas numa única chamada (batch reduz custo de overhead de prompt, mas complica parsing da resposta)
-- [ ] Teste isolado: perfil fixo + 3-4 vagas variadas, validar que a nota faz sentido manualmente antes de confiar no output
+- [x] Criar `UserProfile` (domain) — só um texto livre por enquanto, sem persistência ainda
+- [x] Criar port `application/port/FitScorer` — `score(UserProfile profile, ClassifiedJob job) -> FitScore { nota, justificativa }`
+- [x] Implementar `AnthropicFitScorer` em `infrastructure/ai/` usando a API da Claude (Haiku 4.5)
+- [x] Config de API key via `.env` (`ANTHROPIC_API_KEY`), no `.gitignore`, nunca commitado — mesmo arquivo passou a centralizar também as credenciais do Telegram (`TELEGRAM_TOKEN`/`TELEGRAM_CHAT_ID`, antes em `telegram.txt`)
+- [x] Decidido: **chamada por vaga**, não em batch — mais simples de fazer parsing e isolar falha de uma vaga sem perder as outras; revisar pra batch só se o custo por busca (Fase 3+) se mostrar alto na prática
+- [x] Teste isolado: `FitScorerPlayground` (`./gradlew.bat fitScorerPlayground`) roda perfil fixo + 4 vagas variadas contra a API real, pra validar visualmente antes de confiar no output — requer `claude.txt` configurado
 
 **Critério de pronto:** dado um perfil e uma lista de vagas já filtradas, o `FitScorer` retorna nota + justificativa pra cada uma, sem estourar custo.
+
+> Config: crie/edite `.env` na raiz com `ANTHROPIC_API_KEY=SUA_CHAVE_AQUI` (nunca commitado).
 
 ## Fase 3 — Tela mínima + 1 usuária de teste
 

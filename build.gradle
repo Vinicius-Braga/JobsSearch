@@ -46,3 +46,10 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+tasks.register('fitScorerPlayground', JavaExec) {
+    group = 'application'
+    description = 'Roda o FitScorer contra vagas de exemplo pra validar as notas manualmente (requer claude.txt).'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.jobs.infrastructure.ai.FitScorerPlayground'
+}
