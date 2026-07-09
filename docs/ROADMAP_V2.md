@@ -61,6 +61,7 @@ Objetivo: abrir pra mais gente além da usuária de teste, com cobrança.
 - [ ] Migrar de H2/SQLite pra Postgres, com isolamento de dados por usuário (multi-tenant)
 - [ ] Integração com Stripe (assinatura recorrente)
 - [ ] Limite de teste grátis (ex: 3 buscas sem cartão)
+- [ ] **Frontend mais sofisticado**: botão de busca grande, com uma animação de "radar" ao redor dele — fica colorido/ativo assim que a pessoa termina de descrever o perfil, como sinal visual de "pronto pra buscar". Implica trocar o `POST /buscar` síncrono (hoje trava a página por 20-40s+, ver limitação anotada acima) por uma chamada assíncrona via JS: o clique dispara a busca em background, o radar anima enquanto espera, e os resultados aparecem sem recarregar a página — resolve a limitação de UX e a parte visual no mesmo esforço
 - [ ] Decidir hospedagem (Railway/Render/VPS/AWS) e colocar no ar
 
 ## Backlog (pós-V2, sem prioridade definida)
