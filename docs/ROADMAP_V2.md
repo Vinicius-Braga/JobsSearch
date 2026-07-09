@@ -47,6 +47,7 @@ Objetivo: sua namorada consegue usar o app de ponta a ponta, sem cobrança.
 - [ ] Persistência de perfil: banco leve (H2 ou SQLite) — trocar por Postgres só quando for multi-tenant de verdade (Fase 4)
 - [ ] Tela: editar perfil → botão "buscar vagas" → lista de resultados com nota + link de aplicar
 - [ ] Ligar Fase 1 (busca) + Fase 2 (score) nesse fluxo real, ponta a ponta
+- [ ] **Remover o Telegram** — o resultado passa a aparecer na tela (busca sob demanda), então o push de notificação da V1 não faz mais sentido. Remover `TelegramNotifier`, `TelegramProperties`, `NoOpNotifier`, o wiring de `Notifier` no `CliBeanConfig`/`CliRunner`, e as chaves `TELEGRAM_TOKEN`/`TELEGRAM_CHAT_ID` do `.env`/`application.yml`. Como o `CliApplication` (loop de 6h) deixa de ter função sem o Telegram e sem a V1 sendo mais usada, avaliar se ele também sai do projeto junto
 
 **Critério de pronto:** sua namorada edita o perfil dela, clica em buscar, e vê uma lista de vagas com nota, sem você rodar nada manualmente.
 
