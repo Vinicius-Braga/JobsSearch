@@ -16,7 +16,7 @@ java {
 
 application {
     // CLI de loop (V1) continua rodando via `./gradlew run`.
-    mainClass = 'com.jobs.Main'
+    mainClass = 'com.jobs.infrastructure.cli.CliApplication'
 }
 
 springBoot {
@@ -49,7 +49,7 @@ tasks.named('test') {
 
 tasks.register('fitScorerPlayground', JavaExec) {
     group = 'application'
-    description = 'Roda o FitScorer contra vagas de exemplo pra validar as notas manualmente (requer claude.txt).'
+    description = 'Roda o FitScorer contra vagas de exemplo pra validar as notas manualmente (requer .env com ANTHROPIC_API_KEY).'
     classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.jobs.infrastructure.ai.FitScorerPlayground'
+    mainClass = 'com.jobs.infrastructure.ai.FitScorerPlaygroundApplication'
 }

@@ -1,37 +1,69 @@
 package com.jobs.infrastructure.ai;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jobs.application.port.FitScorer;
 import com.jobs.domain.ClassifiedJob;
 import com.jobs.domain.FitScore;
 import com.jobs.domain.Job;
 import com.jobs.domain.UserProfile;
-import com.jobs.infrastructure.config.EnvLoader;
+import com.jobs.infrastructure.config.AnthropicProperties;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.net.http.HttpClient;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Programa manual (não faz parte do fluxo real nem dos testes automatizados)
- * pra validar visualmente se as notas do FitScorer fazem sentido antes de
- * confiar na integração. Requer ANTHROPIC_API_KEY configurado no .env.
+ * Aplicação Spring separada (não faz parte do fluxo real nem dos testes
+ * automatizados) pra validar visualmente se as notas do FitScorer fazem
+ * sentido antes de confiar na integração. Requer ANTHROPIC_API_KEY no .env.
  * Rodar com: ./gradlew.bat fitScorerPlayground
  */
-public class FitScorerPlayground {
+@SpringBootApplication
+@EnableConfigurationProperties(AnthropicProperties.class)
+public class FitScorerPlaygroundApplication {
 
-    public static void main(String[] args) throws Exception {
-        Map<String, String> env = EnvLoader.load(Path.of(".env"));
-        AnthropicConfig config = AnthropicConfig.from(env);
-        if (config == null) {
+    public static void main(String[] args) {
+        new SpringApplicationBuilder(FitScorerPlaygroundApplication.class)
+                .web(WebApplicationType.NONE)
+                .run(args);
+    }
+
+    @Bean
+    public HttpClient httpClient() {
+        return HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+    }
+
+    @Bean
+    public FitScorer fitScorer(HttpClient httpClient, ObjectMapper objectMapper, AnthropicProperties anthropicProperties) {
+        return new AnthropicFitScorer(httpClient, objectMapper, anthropicProperties.apiKey());
+    }
+}
+
+@Component
+class FitScorerPlaygroundRunner implements CommandLineRunner {
+
+    private final FitScorer fitScorer;
+    private final AnthropicProperties anthropicProperties;
+
+    FitScorerPlaygroundRunner(FitScorer fitScorer, AnthropicProperties anthropicProperties) {
+        this.fitScorer = fitScorer;
+        this.anthropicProperties = anthropicProperties;
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        if (anthropicProperties.apiKey() == null || anthropicProperties.apiKey().isBlank()) {
             System.out.println(".env não tem ANTHROPIC_API_KEY configurado. "
                     + "Adicione a linha: ANTHROPIC_API_KEY=SUA_CHAVE_AQUI");
             return;
         }
-
-        HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
-        AnthropicFitScorer scorer = new AnthropicFitScorer(httpClient, new ObjectMapper(), config.apiKey());
 
         UserProfile profile = new UserProfile(
                 "Procuro vagas de RH, junior ou estagio, em Porto Alegre ou remoto. "
@@ -52,7 +84,7 @@ public class FitScorerPlayground {
         System.out.println();
 
         for (ClassifiedJob job : sampleJobs) {
-            FitScore result = scorer.score(profile, job);
+            FitScore result = fitScorer.score(profile, job);
             System.out.println(job.job().title() + " (" + job.job().company() + ") -> nota "
                     + result.score() + "/10: " + result.justification());
         }

@@ -6,6 +6,7 @@ Decisões já tomadas:
 - **Stack**: Java + Spring Boot. Reaproveita `GupyJobSource`, `JobFilter`, `Classifier` como estão — só entra uma camada web por cima.
 - **Hospedagem**: em aberto, decidida na Fase 3/4. A API é desenhada de forma agnóstica de provedor até lá.
 - **Modelo de IA**: Claude Haiku 4.5, pelo custo (~$0,06 por busca de ~40 vagas pré-filtradas).
+- **Configuração**: todo o projeto (CLI e API) roda dentro do Spring Boot. `src/main/resources/application.yml` define a estrutura tipada (`app.telegram.*`, `app.anthropic.*`) e importa `.env` (`spring.config.import`) pra preencher os valores — nada de `env.get("CHAVE")` espalhado pelo código, cada configuração vira uma classe `@ConfigurationProperties` (`TelegramProperties`, `AnthropicProperties`) injetada onde precisa. Três entry points Spring distintos, cada um com seu próprio `@SpringBootApplication` e escopo de beans: `CliApplication` (loop de 6h, `./gradlew run`), `WebApplication` (API, `./gradlew bootRun`) e `FitScorerPlaygroundApplication` (teste manual, `./gradlew fitScorerPlayground`).
 
 ## Fase 1 — Motor como serviço
 

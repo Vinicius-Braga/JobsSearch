@@ -1,9 +1,12 @@
 package com.jobs.infrastructure.web;
 
+import com.jobs.infrastructure.config.AnthropicProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
+@EnableConfigurationProperties(AnthropicProperties.class)
 public class WebApplication {
 
     public static void main(String[] args) {

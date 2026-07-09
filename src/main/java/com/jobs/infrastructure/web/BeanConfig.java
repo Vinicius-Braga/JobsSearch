@@ -2,7 +2,10 @@ package com.jobs.infrastructure.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobs.application.SearchJobsUseCase;
+import com.jobs.application.port.FitScorer;
 import com.jobs.domain.Classifier;
+import com.jobs.infrastructure.ai.AnthropicFitScorer;
+import com.jobs.infrastructure.config.AnthropicProperties;
 import com.jobs.infrastructure.gupy.BuildIdExtractor;
 import com.jobs.infrastructure.gupy.GupyClient;
 import com.jobs.infrastructure.gupy.GupyJobSource;
@@ -37,5 +40,10 @@ public class BeanConfig {
     @Bean
     public SearchJobsUseCase searchJobsUseCase(GupyJobSource gupyJobSource, Classifier classifier) {
         return new SearchJobsUseCase(gupyJobSource, classifier);
+    }
+
+    @Bean
+    public FitScorer fitScorer(HttpClient httpClient, ObjectMapper objectMapper, AnthropicProperties anthropicProperties) {
+        return new AnthropicFitScorer(httpClient, objectMapper, anthropicProperties.apiKey());
     }
 }
