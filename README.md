@@ -11,6 +11,7 @@ Aplicação web em Java/Spring Boot que coleta vagas de páginas de carreira que
 
 - Java 21 ou superior instalado.
 - Conexão com internet.
+- Um banco Postgres (ex: [Supabase](https://supabase.com/), tem plano grátis) — a URL de conexão vai no `.env`.
 - Uma chave de API da [Anthropic](https://console.anthropic.com/) (opcional pra rodar, necessária pra ver as notas de aderência).
 
 ## Como rodar
@@ -21,7 +22,7 @@ cd JobsSearch
 .\gradlew.bat bootRun
 ```
 
-Acesse **http://localhost:8080** e faça login com as credenciais configuradas no `.env` (veja abaixo).
+Acesse **http://localhost:8080**, clique em **Criar uma conta** pra se cadastrar, e faça login.
 
 ## Configuração
 
@@ -30,12 +31,13 @@ Arquivos de texto na raiz do projeto controlam o comportamento. Edite-os e reini
 ### `.env` — credenciais
 
 ```
-APP_USER_USERNAME=admin
-APP_USER_PASSWORD=escolha_uma_senha
+DATABASE_URL=jdbc:postgresql://SEU_HOST:5432/postgres?sslmode=require
+DATABASE_USERNAME=seu_usuario
+DATABASE_PASSWORD=sua_senha
 ANTHROPIC_API_KEY=sua_chave_aqui
 ```
 
-- **`APP_USER_USERNAME`/`APP_USER_PASSWORD`**: login da aplicação (usuário único por enquanto — multi-usuário vem na Fase 4 do roadmap). Se não definidos, caem no padrão `admin`/`changeme`.
+- **`DATABASE_URL`/`DATABASE_USERNAME`/`DATABASE_PASSWORD`**: conexão com o Postgres — é onde ficam as contas de usuário e os perfis de busca. Sem isso o app não sobe.
 - **`ANTHROPIC_API_KEY`**: sem ela, a busca ainda roda e mostra quantas vagas bateram no filtro, mas nenhuma é pontuada pela IA (fica visível um aviso na tela).
 
 **Esse arquivo contém credenciais — nunca commite ele.** Já está no `.gitignore`.
@@ -68,14 +70,14 @@ Deixe uma linha vazia, apagada ou comentada com `#` pra não filtrar por aquele 
 
 ### Perfil (dentro do app)
 
-O perfil de busca — o que a IA usa pra dar a nota de aderência — é editado direto na tela, em texto livre, depois de fazer login. Fica salvo num banco H2 local (`data/jobsearch.mv.db`, também no `.gitignore`).
+O perfil de busca — o que a IA usa pra dar a nota de aderência — é editado direto na tela, em texto livre, depois de fazer login. Fica salvo no Postgres, isolado por usuário (cada conta só vê o próprio perfil e histórico).
 
 ## Como usar
 
 1. Rode `.\gradlew.bat bootRun` e acesse http://localhost:8080.
-2. Faça login com as credenciais do `.env`.
+2. Clique em **Criar uma conta** (usuário + senha) e depois faça login.
 3. Clique em **Editar perfil** e descreva o que você procura (área, senioridade, região, tipo de empresa).
-4. Clique em **Buscar vagas** — a busca roda nas empresas do `empresas.txt`, aplica o `filtro.txt`, e pontua cada vaga pré-filtrada com a IA (até 40 por busca, por custo).
+4. Na tela inicial, o botão de busca fica colorido/ativo assim que há um perfil salvo. Clique nele — a busca roda em background (com uma animação de radar), sem recarregar a página, nas empresas do `empresas.txt`, aplicando o `filtro.txt`, e pontuando cada vaga pré-filtrada com a IA (até 40 por busca, por custo).
 5. A lista aparece ordenada por nota, com link direto pra aplicar.
 
 ## Estrutura do código
@@ -85,10 +87,10 @@ src/main/java/com/jobs/
  ├─ domain/            modelos e regras de negócio puras (Job, Company, Classifier, JobFilter, UserProfile, FitScore)
  ├─ application/       casos de uso (SearchJobsUseCase, SearchAndScoreJobsUseCase) + interfaces em application/port
  └─ infrastructure/
-     ├─ web/           controllers, segurança (Spring Security), persistência de perfil (JPA/H2) — a aplicação Spring
+     ├─ web/           controllers, segurança (Spring Security, multi-usuário), persistência (JPA/Postgres) — a aplicação Spring
      ├─ ai/             AnthropicFitScorer (Claude Haiku) + FitScorerPlaygroundApplication (teste manual isolado)
      ├─ gupy/           coleta de vagas na Gupy
-     └─ config/         classes @ConfigurationProperties tipadas (AnthropicProperties, AppUserProperties)
+     └─ config/         classes @ConfigurationProperties tipadas (AnthropicProperties)
 ```
 
 Trocar de fonte de vagas ou de motor de IA significa implementar a interface correspondente em `application/port` — sem tocar nos casos de uso.

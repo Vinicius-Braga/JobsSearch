@@ -57,12 +57,14 @@ Objetivo: sua namorada consegue usar o app de ponta a ponta, sem cobrança.
 
 Objetivo: abrir pra mais gente além da usuária de teste, com cobrança.
 
-- [ ] Auth multi-usuário de verdade (Spring Security + cadastro/login)
-- [ ] Migrar de H2/SQLite pra Postgres, com isolamento de dados por usuário (multi-tenant)
+- [x] Auth multi-usuário de verdade (Spring Security + cadastro/login) — `AccountEntity`/`AccountJpaRepository`/`JpaUserDetailsService` no Postgres, cadastro em `/cadastro` (`AccountController`), senha com BCrypt. `ProfileStore` já era isolado por username desde a Fase 3, então o multi-tenant "só funcionou" ao trocar a autenticação.
+- [x] Migrar de H2/SQLite pra Postgres, com isolamento de dados por usuário (multi-tenant) — banco no [Supabase](https://supabase.com/), conexão via `.env` (`DATABASE_URL`/`DATABASE_USERNAME`/`DATABASE_PASSWORD`), `ddl-auto: update` cria as tabelas (`account`, `user_profile`) automaticamente
 - [ ] Integração com Stripe (assinatura recorrente)
 - [ ] Limite de teste grátis (ex: 3 buscas sem cartão)
-- [ ] **Frontend mais sofisticado**: botão de busca grande, com uma animação de "radar" ao redor dele — fica colorido/ativo assim que a pessoa termina de descrever o perfil, como sinal visual de "pronto pra buscar". Implica trocar o `POST /buscar` síncrono (hoje trava a página por 20-40s+, ver limitação anotada acima) por uma chamada assíncrona via JS: o clique dispara a busca em background, o radar anima enquanto espera, e os resultados aparecem sem recarregar a página — resolve a limitação de UX e a parte visual no mesmo esforço
+- [x] **Frontend mais sofisticado**: botão de busca grande com animação de radar (anéis pulsando), cinza/desabilitado sem perfil, colorido/ativo com perfil salvo, muda de cor e acelera a pulsação durante a busca. `POST /buscar` virou endpoint JSON (`BuscarResponse`) chamado via `fetch()` — a busca roda em background, sem recarregar a página, resolvendo a limitação de UX anotada na Fase 3.
 - [ ] Decidir hospedagem (Railway/Render/VPS/AWS) e colocar no ar
+
+**Testado de ponta a ponta:** cadastro de conta nova → login → perfil isolado por usuário (conta nova sem dados da conta anterior) → perfil salvo persiste no Postgres real (Supabase) → busca assíncrona real (Gupy + IA) retorna 6 vagas ordenadas por nota via JSON, renderizadas pelo JS sem reload — confirmado via `curl` com sessão autenticada e visualmente no navegador (radar ativo → estado de busca → resultados).
 
 ## Backlog (pós-V2, sem prioridade definida)
 

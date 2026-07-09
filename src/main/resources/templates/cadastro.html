@@ -2,7 +2,7 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
-<title>Entrar — Agregador de Vagas</title>
+<title>Criar conta — Agregador de Vagas</title>
 <style>
     body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex; align-items: center;
            justify-content: center; height: 100vh; margin: 0; }
@@ -15,24 +15,22 @@
               border-radius: 4px; cursor: pointer; font-size: 14px; }
     button:hover { background: #444; }
     .erro { color: #b91c1c; font-size: 13px; margin-top: 12px; }
-    .ok { color: #2f6b5e; font-size: 13px; margin-top: 12px; }
-    .cadastro { display: block; text-align: center; margin-top: 16px; font-size: 13px; color: #1a5fb4; text-decoration: none; }
-    .cadastro:hover { text-decoration: underline; }
+    .voltar { display: block; text-align: center; margin-top: 16px; font-size: 13px; color: #1a5fb4; text-decoration: none; }
+    .voltar:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
 <div class="box">
-    <h1>Agregador de Vagas</h1>
-    <form th:action="@{/login}" method="post">
+    <h1>Criar conta</h1>
+    <form th:action="@{/cadastro}" method="post">
         <label>Usuário</label>
         <input type="text" name="username" autofocus>
         <label>Senha</label>
         <input type="password" name="password">
-        <button type="submit">Entrar</button>
+        <button type="submit">Criar conta</button>
     </form>
-    <p class="erro" th:if="${param.error}">Usuário ou senha inválidos.</p>
-    <p class="ok" th:if="${param.cadastro}">Conta criada! Já pode entrar.</p>
-    <a class="cadastro" th:href="@{/cadastro}">Criar uma conta</a>
+    <p class="erro" th:if="${erro}" th:text="${erro}"></p>
+    <a class="voltar" th:href="@{/login}">Já tenho conta</a>
 </div>
 </body>
 </html>

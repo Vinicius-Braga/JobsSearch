@@ -2,6 +2,8 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
+<meta name="_csrf" th:content="${_csrf.token}">
+<meta name="_csrf_header" th:content="${_csrf.headerName}">
 <title>Agregador de Vagas</title>
 <style>
     body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
@@ -14,12 +16,30 @@
     .profile-box .empty { color: #999; font-style: italic; }
     .profile-box a { color: #1a5fb4; text-decoration: none; font-size: 13px; }
     .profile-box a:hover { text-decoration: underline; }
-    .actions { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-    button.buscar { padding: 10px 20px; background: #2d2d2d; color: white; border: none; border-radius: 4px;
-                    cursor: pointer; font-size: 14px; }
-    button.buscar:hover { background: #444; }
     form.logout button { background: none; border: none; color: #666; cursor: pointer; font-size: 13px;
                           text-decoration: underline; padding: 0; }
+
+    /* --- Radar --- */
+    .radar { position: relative; width: 140px; height: 140px; margin: 30px auto; display: flex;
+             align-items: center; justify-content: center; }
+    .ring { position: absolute; width: 120px; height: 120px; border-radius: 50%;
+            border: 2px solid #2f9e6e; opacity: 0; pointer-events: none; }
+    .radar.active .ring { animation: radar-pulse 2.4s ease-out infinite; }
+    .radar.active .ring.r2 { animation-delay: 0.8s; }
+    .radar.active .ring.r3 { animation-delay: 1.6s; }
+    .radar.loading .ring { border-color: #1a5fb4; animation-duration: 0.9s; }
+    @keyframes radar-pulse {
+        0%   { width: 120px; height: 120px; opacity: 0.55; }
+        100% { width: 230px; height: 230px; opacity: 0; }
+    }
+    .radar-btn { position: relative; z-index: 2; width: 120px; height: 120px; border-radius: 50%; border: none;
+                 color: white; font-weight: 600; font-size: 14px; cursor: not-allowed; background: #c7c7c7;
+                 transition: background 0.35s, box-shadow 0.35s; }
+    .radar.active .radar-btn { cursor: pointer; background: radial-gradient(circle at 35% 30%, #3bb583, #1a5fb4);
+                                box-shadow: 0 0 24px rgba(47,158,110,0.55); }
+    .radar.loading .radar-btn { background: radial-gradient(circle at 35% 30%, #1a5fb4, #2f9e6e); cursor: wait; }
+    .radar-hint { text-align: center; font-size: 12px; color: #999; margin-top: -14px; margin-bottom: 20px; }
+
     .erro { color: #b91c1c; background: #fef2f2; padding: 10px 14px; border-radius: 4px; margin-bottom: 16px; }
     table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
     th, td { padding: 10px 12px; border-bottom: 1px solid #eee; text-align: left; font-size: 14px; }
@@ -48,40 +68,85 @@
         <a th:href="@{/perfil/editar}">Editar perfil</a>
     </div>
 
-    <div class="actions">
-        <form th:action="@{/buscar}" method="post">
-            <button class="buscar" type="submit">Buscar vagas</button>
-        </form>
+    <div id="radar" class="radar" th:classappend="${profile != null and !#strings.isEmpty(profile)} ? 'active' : ''">
+        <span class="ring r1"></span>
+        <span class="ring r2"></span>
+        <span class="ring r3"></span>
+        <button id="btnBuscar" class="radar-btn"
+                th:disabled="${profile == null or #strings.isEmpty(profile)}">Buscar vagas</button>
     </div>
+    <p class="radar-hint" th:if="${profile == null or #strings.isEmpty(profile)}">
+        Edite seu perfil pra ativar a busca.
+    </p>
 
-    <p class="erro" th:if="${erro}" th:text="${erro}"></p>
-    <p class="erro" th:if="${aviso}" th:text="${aviso}"></p>
-
-    <div th:if="${results != null}">
-        <p class="resumo" th:text="${#lists.size(results)} + ' vaga(s) encontrada(s)'"></p>
-        <table th:if="${!#lists.isEmpty(results)}">
-            <thead>
-            <tr>
-                <th>Nota</th>
-                <th>Vaga</th>
-                <th>Empresa</th>
-                <th>Local</th>
-                <th>Justificativa</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="r : ${results}">
-                <td class="nota" th:text="${r.fitScore.score} + '/10'"></td>
-                <td th:text="${r.job.job.title}"></td>
-                <td th:text="${r.job.job.company}"></td>
-                <td th:text="${r.job.job.city} + '/' + ${r.job.job.state}"></td>
-                <td class="justificativa" th:text="${r.fitScore.justification}"></td>
-                <td><a class="aplicar" th:href="${r.job.job.link}" target="_blank">Aplicar →</a></td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+    <div id="resultsArea"></div>
 </div>
+
+<script th:inline="javascript">
+    const radar = document.getElementById('radar');
+    const btn = document.getElementById('btnBuscar');
+    const resultsArea = document.getElementById('resultsArea');
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+    btn.addEventListener('click', async () => {
+        if (btn.disabled) {
+            return;
+        }
+        radar.classList.add('loading');
+        btn.disabled = true;
+        const originalLabel = btn.textContent;
+        btn.textContent = 'Buscando...';
+        resultsArea.innerHTML = '';
+
+        try {
+            const headers = { [csrfHeader]: csrfToken };
+            const response = await fetch('/buscar', { method: 'POST', headers });
+            if (!response.ok) {
+                throw new Error('status ' + response.status);
+            }
+            const data = await response.json();
+            renderResults(data);
+        } catch (err) {
+            resultsArea.innerHTML = '<p class="erro">Falha na busca: ' + escapeHtml(err.message) + '</p>';
+        } finally {
+            radar.classList.remove('loading');
+            btn.disabled = false;
+            btn.textContent = originalLabel;
+        }
+    });
+
+    function renderResults(data) {
+        let html = '';
+        if (data.aviso) {
+            html += '<p class="erro">' + escapeHtml(data.aviso) + '</p>';
+        }
+        html += '<p class="resumo">' + data.results.length + ' vaga(s) encontrada(s)</p>';
+
+        if (data.results.length > 0) {
+            html += '<table><thead><tr>'
+                + '<th>Nota</th><th>Vaga</th><th>Empresa</th><th>Local</th><th>Justificativa</th><th></th>'
+                + '</tr></thead><tbody>';
+            for (const r of data.results) {
+                html += '<tr>'
+                    + '<td class="nota">' + r.fitScore.score + '/10</td>'
+                    + '<td>' + escapeHtml(r.job.job.title) + '</td>'
+                    + '<td>' + escapeHtml(r.job.job.company) + '</td>'
+                    + '<td>' + escapeHtml(r.job.job.city) + '/' + escapeHtml(r.job.job.state) + '</td>'
+                    + '<td class="justificativa">' + escapeHtml(r.fitScore.justification) + '</td>'
+                    + '<td><a class="aplicar" href="' + r.job.job.link + '" target="_blank">Aplicar →</a></td>'
+                    + '</tr>';
+            }
+            html += '</tbody></table>';
+        }
+        resultsArea.innerHTML = html;
+    }
+
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value == null ? '' : value;
+        return div.innerHTML;
+    }
+</script>
 </body>
 </html>

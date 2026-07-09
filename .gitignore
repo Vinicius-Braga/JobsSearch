@@ -4,4 +4,3 @@ build/
 *.iml
 out/
 .env
-data/
