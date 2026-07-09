@@ -7,5 +7,4 @@ services:
       - .env
     volumes:
       - ./empresas.txt:/app/empresas.txt:ro
-      - ./filtro.txt:/app/filtro.txt:ro
     restart: unless-stopped

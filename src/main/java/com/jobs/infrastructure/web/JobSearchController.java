@@ -32,11 +32,12 @@ public class JobSearchController {
 
     private JobFilter toFilter(SearchRequest.FiltroDto dto) {
         if (dto == null) {
-            return new JobFilter(List.of(), List.of(), List.of());
+            return new JobFilter(List.of(), List.of(), List.of(), false);
         }
         return new JobFilter(
                 dto.area() != null ? dto.area() : List.of(),
                 dto.senioridade() != null ? dto.senioridade() : List.of(),
-                dto.regiao() != null ? dto.regiao() : List.of());
+                dto.regiao() != null ? dto.regiao() : List.of(),
+                dto.remoto() != null && dto.remoto());
     }
 }

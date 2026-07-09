@@ -5,8 +5,10 @@ import com.jobs.application.SearchAndScoreJobsUseCase;
 import com.jobs.application.SearchJobsUseCase;
 import com.jobs.application.port.CompanyLoader;
 import com.jobs.application.port.FitScorer;
+import com.jobs.application.port.SearchCriteriaExtractor;
 import com.jobs.domain.Classifier;
 import com.jobs.infrastructure.ai.AnthropicFitScorer;
+import com.jobs.infrastructure.ai.AnthropicSearchCriteriaExtractor;
 import com.jobs.infrastructure.config.AnthropicProperties;
 import com.jobs.infrastructure.config.CompanyFileLoader;
 import com.jobs.infrastructure.gupy.BuildIdExtractor;
@@ -57,7 +59,14 @@ public class BeanConfig {
     }
 
     @Bean
-    public SearchAndScoreJobsUseCase searchAndScoreJobsUseCase(SearchJobsUseCase searchJobsUseCase, FitScorer fitScorer) {
-        return new SearchAndScoreJobsUseCase(searchJobsUseCase, fitScorer);
+    public SearchCriteriaExtractor searchCriteriaExtractor(HttpClient httpClient, ObjectMapper objectMapper,
+            AnthropicProperties anthropicProperties) {
+        return new AnthropicSearchCriteriaExtractor(httpClient, objectMapper, anthropicProperties.apiKey());
+    }
+
+    @Bean
+    public SearchAndScoreJobsUseCase searchAndScoreJobsUseCase(SearchJobsUseCase searchJobsUseCase, FitScorer fitScorer,
+            SearchCriteriaExtractor searchCriteriaExtractor) {
+        return new SearchAndScoreJobsUseCase(searchJobsUseCase, fitScorer, searchCriteriaExtractor);
     }
 }

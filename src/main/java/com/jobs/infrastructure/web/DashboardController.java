@@ -5,7 +5,6 @@ import com.jobs.application.SearchOutcome;
 import com.jobs.application.port.CompanyLoader;
 import com.jobs.application.port.ProfileStore;
 import com.jobs.domain.Company;
-import com.jobs.domain.JobFilter;
 import com.jobs.domain.UserProfile;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.nio.file.Path;
 import java.security.Principal;
 import java.util.List;
 
@@ -61,8 +59,7 @@ public class DashboardController {
         }
 
         List<Company> companies = companyLoader.load();
-        JobFilter filter = JobFilter.load(Path.of("filtro.txt"));
-        SearchOutcome outcome = searchAndScoreJobsUseCase.search(companies, filter, new UserProfile(description));
+        SearchOutcome outcome = searchAndScoreJobsUseCase.search(companies, new UserProfile(description));
 
         String aviso = null;
         if (outcome.hasUnscoredMatches()) {

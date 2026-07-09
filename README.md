@@ -3,7 +3,7 @@
 [![CI](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/ci.yml/badge.svg)](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/codeql.yml/badge.svg)](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/codeql.yml)
 
-Aplicação web em Java/Spring Boot que coleta vagas de páginas de carreira que usam a plataforma Gupy, filtra por área/senioridade/região, e usa a IA da Claude pra dar uma nota de aderência de cada vaga contra o seu perfil — sob demanda, direto no navegador.
+Aplicação web em Java/Spring Boot que coleta vagas de páginas de carreira que usam a plataforma Gupy e usa a IA da Claude pra entender seu perfil de busca (área, senioridade, região, remoto ou não) e dar uma nota de aderência de cada vaga — sob demanda, direto no navegador.
 
 > Veja o [roadmap](docs/ROADMAP_V2.md) pra entender as fases já entregues e o que vem a seguir.
 
@@ -32,7 +32,7 @@ cd JobsSearch
 docker compose up --build
 ```
 
-Sobe a aplicação inteira num container (só a aplicação — o banco é o Postgres externo configurado no `.env`, ex: Supabase). `empresas.txt` e `filtro.txt` são montados como volume, então dá pra editá-los sem rebuildar a imagem.
+Sobe a aplicação inteira num container (só a aplicação — o banco é o Postgres externo configurado no `.env`, ex: Supabase). `empresas.txt` é montado como volume, então dá pra editá-lo sem rebuildar a imagem.
 
 Em ambos os casos, acesse **http://localhost:8080**, clique em **Criar uma conta** pra se cadastrar, e faça login.
 
@@ -64,32 +64,18 @@ subdominio,Nome que aparece na tela
 
 O "subdomínio" é a parte antes de `.gupy.io` na URL da página de carreiras da empresa (ex: `https://vivo.gupy.io/` → subdomínio é `vivo`).
 
-### `filtro.txt` — pré-filtro por palavra-chave
-
-Roda antes da IA, pra reduzir o volume de vagas que precisam ser avaliadas:
-
-```
-area=RH
-senioridade=junior,pleno,senior,auxiliar,assistente,estagio
-regiao=RS,Porto Alegre
-```
-
-- **area**: RH, TI, Comercial, Financeiro, Marketing, Logistica, Juridico, Atendimento, Engenharia, Outro
-- **senioridade**: Estagio, Auxiliar, Assistente, Junior, Pleno, Senior, Nao especificado
-- **regiao**: sigla do estado (ex: `RS`) ou nome/parte do nome da cidade (ex: `Porto Alegre`)
-
-Deixe uma linha vazia, apagada ou comentada com `#` pra não filtrar por aquele campo (traz todas as opções). Os valores são combinados com "E" — uma vaga só passa pro pré-filtro se bater em todos os campos preenchidos.
-
 ### Perfil (dentro do app)
 
-O perfil de busca — o que a IA usa pra dar a nota de aderência — é editado direto na tela, em texto livre, depois de fazer login. Fica salvo no Postgres, isolado por usuário (cada conta só vê o próprio perfil e histórico).
+O perfil de busca é editado direto na tela, em texto livre, depois de fazer login (ex: *"Desenvolvedor Backend Jr, especialidade Java, quero vagas remotas, junior ou pleno"*). Fica salvo no Postgres, isolado por usuário (cada conta só vê o próprio perfil e histórico).
+
+A cada busca, a IA lê esse texto e decide sozinha os critérios de pré-filtro (área, senioridade, região, remoto ou não) — não existe mais um arquivo de configuração de filtro separado do perfil. Esse pré-filtro reduz o volume de vagas antes da etapa mais cara (pontuar cada uma individualmente com IA).
 
 ## Como usar
 
-1. Rode `.\gradlew.bat bootRun` e acesse http://localhost:8080.
+1. Rode `.\gradlew.bat bootRun` (ou `docker compose up --build`) e acesse http://localhost:8080.
 2. Clique em **Criar uma conta** (usuário + senha) e depois faça login.
-3. Clique em **Editar perfil** e descreva o que você procura (área, senioridade, região, tipo de empresa).
-4. Na tela inicial, o botão de busca fica colorido/ativo assim que há um perfil salvo. Clique nele — a busca roda em background (com uma animação de radar), sem recarregar a página, nas empresas do `empresas.txt`, aplicando o `filtro.txt`, e pontuando cada vaga pré-filtrada com a IA (até 40 por busca, por custo).
+3. Clique em **Editar perfil** e descreva em texto livre o que você procura.
+4. Na tela inicial, o botão de busca fica colorido/ativo assim que há um perfil salvo. Clique nele — a busca roda em background (com uma animação de radar), sem recarregar a página: a IA extrai os critérios do seu perfil, filtra as vagas das empresas do `empresas.txt`, e pontua cada vaga pré-filtrada (até 40 por busca, por custo).
 5. A lista aparece ordenada por nota, com link direto pra aplicar.
 
 ## Estrutura do código
@@ -100,7 +86,7 @@ src/main/java/com/jobs/
  ├─ application/       casos de uso (SearchJobsUseCase, SearchAndScoreJobsUseCase) + interfaces em application/port
  └─ infrastructure/
      ├─ web/           controllers, segurança (Spring Security, multi-usuário), persistência (JPA/Postgres) — a aplicação Spring
-     ├─ ai/             AnthropicFitScorer (Claude Haiku) + FitScorerPlaygroundApplication (teste manual isolado)
+     ├─ ai/             AnthropicFitScorer + AnthropicSearchCriteriaExtractor (Claude Haiku) + FitScorerPlaygroundApplication (teste manual isolado)
      ├─ gupy/           coleta de vagas na Gupy
      └─ config/         classes @ConfigurationProperties tipadas (AnthropicProperties)
 ```

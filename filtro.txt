@@ -1,7 +1,0 @@
-# Filtro de vagas. Deixe uma linha em branco/comentada = sem filtro naquele campo (traz tudo).
-# area: RH, TI, Comercial, Financeiro, Marketing, Logistica, Juridico, Atendimento, Engenharia, Outro
-# senioridade: Estagio, Auxiliar, Assistente, Junior, Pleno, Senior, Nao especificado
-# regiao: sigla do estado (ex: RS, SP) ou nome/parte do nome da cidade (ex: Porto Alegre)
-area=RH
-# senioridade=junior,pleno,senior,auxiliar,assistente,estagio
-regiao=RS,Porto Alegre

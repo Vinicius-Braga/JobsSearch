@@ -29,7 +29,7 @@ public class SearchJobsUseCase {
                 for (Job job : jobs) {
                     String area = classifier.classifyArea(job);
                     String seniority = classifier.classifySeniority(job);
-                    if (filter.matches(area, seniority, job.city(), job.state())) {
+                    if (filter.matches(area, seniority, job.city(), job.state(), job.workMode())) {
                         matched.add(new ClassifiedJob(job, area, seniority));
                     }
                 }

@@ -25,7 +25,7 @@ class SearchJobsUseCaseTest {
         JobSource fakeSource = fakeSourceFor(Map.of(company, List.of(rhJunior, tiSenior)));
         SearchJobsUseCase useCase = new SearchJobsUseCase(fakeSource, new Classifier());
 
-        JobFilter filter = new JobFilter(List.of("RH"), List.of(), List.of());
+        JobFilter filter = new JobFilter(List.of("RH"), List.of(), List.of(), false);
         List<ClassifiedJob> result = useCase.search(List.of(company), filter);
 
         assertEquals(1, result.size());
@@ -47,7 +47,7 @@ class SearchJobsUseCaseTest {
         };
         SearchJobsUseCase useCase = new SearchJobsUseCase(fakeSource, new Classifier());
 
-        List<ClassifiedJob> result = useCase.search(List.of(broken, ok), new JobFilter(List.of(), List.of(), List.of()));
+        List<ClassifiedJob> result = useCase.search(List.of(broken, ok), new JobFilter(List.of(), List.of(), List.of(), false));
 
         assertEquals(1, result.size());
         assertTrue(result.stream().anyMatch(cj -> cj.job().id() == 1L));

@@ -1,6 +1,7 @@
 package com.jobs.application;
 
 import com.jobs.application.port.FitScorer;
+import com.jobs.application.port.SearchCriteriaExtractor;
 import com.jobs.domain.ClassifiedJob;
 import com.jobs.domain.Company;
 import com.jobs.domain.FitScore;
@@ -19,13 +20,18 @@ public class SearchAndScoreJobsUseCase {
 
     private final SearchJobsUseCase searchJobsUseCase;
     private final FitScorer fitScorer;
+    private final SearchCriteriaExtractor searchCriteriaExtractor;
 
-    public SearchAndScoreJobsUseCase(SearchJobsUseCase searchJobsUseCase, FitScorer fitScorer) {
+    public SearchAndScoreJobsUseCase(SearchJobsUseCase searchJobsUseCase, FitScorer fitScorer,
+            SearchCriteriaExtractor searchCriteriaExtractor) {
         this.searchJobsUseCase = searchJobsUseCase;
         this.fitScorer = fitScorer;
+        this.searchCriteriaExtractor = searchCriteriaExtractor;
     }
 
-    public SearchOutcome search(List<Company> companies, JobFilter filter, UserProfile profile) {
+    public SearchOutcome search(List<Company> companies, UserProfile profile) {
+        JobFilter filter = extractFilter(profile);
+
         List<ClassifiedJob> matched = searchJobsUseCase.search(companies, filter);
         List<ClassifiedJob> toScore = matched.size() > MAX_JOBS_TO_SCORE
                 ? matched.subList(0, MAX_JOBS_TO_SCORE)
@@ -43,5 +49,15 @@ public class SearchAndScoreJobsUseCase {
 
         scored.sort(Comparator.comparingInt((ScoredJob s) -> s.fitScore().score()).reversed());
         return new SearchOutcome(matched.size(), scored);
+    }
+
+    private JobFilter extractFilter(UserProfile profile) {
+        try {
+            return searchCriteriaExtractor.extract(profile);
+        } catch (Exception e) {
+            System.out.println("Falha ao extrair critérios de busca do perfil, buscando sem pré-filtro: "
+                    + e.getMessage());
+            return new JobFilter(List.of(), List.of(), List.of(), false);
+        }
     }
 }

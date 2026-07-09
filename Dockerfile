@@ -14,7 +14,10 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 COPY --from=build /app/build/libs/*.jar app.jar
-COPY empresas.txt filtro.txt ./
+COPY empresas.txt ./
 
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Contêiner sem rota IPv6 funcional (comum no Docker Desktop) faz chamadas HTTPS
+# externas (Gupy, API da Claude) falharem com "Network is unreachable" se a JVM
+# tentar IPv6 primeiro — força IPv4.
+ENTRYPOINT ["java", "-Djava.net.preferIPv4Stack=true", "-jar", "app.jar"]
