@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Editar perfil — Agregador de Vagas</title>
+<style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+    .wrap { max-width: 600px; margin: 40px auto; background: white; padding: 24px 28px; border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+    h1 { font-size: 20px; margin-top: 0; }
+    p.hint { color: #666; font-size: 13px; }
+    textarea { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;
+               font-family: inherit; font-size: 14px; resize: vertical; }
+    button { margin-top: 14px; padding: 10px 18px; background: #2d2d2d; color: white; border: none;
+             border-radius: 4px; cursor: pointer; font-size: 14px; }
+    button:hover { background: #444; }
+    a { display: inline-block; margin-top: 14px; margin-left: 12px; color: #1a5fb4; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <h1>Editar perfil</h1>
+    <p class="hint">Descreva em texto livre o que você procura — área, senioridade, região, tipo de empresa.
+        A IA usa isso pra dar uma nota de aderência em cada vaga.</p>
+    <form th:action="@{/perfil}" method="post">
+        <textarea name="description" rows="6" th:text="${description}"
+                  placeholder="Ex: Procuro vagas de RH, junior ou estagio, em Porto Alegre ou remoto. Prefiro empresas de medio porte."></textarea>
+        <br>
+        <button type="submit">Salvar</button>
+        <a th:href="@{/}">Voltar</a>
+    </form>
+</div>
+</body>
+</html>

@@ -1,11 +1,14 @@
 package com.jobs.infrastructure.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jobs.application.SearchAndScoreJobsUseCase;
 import com.jobs.application.SearchJobsUseCase;
+import com.jobs.application.port.CompanyLoader;
 import com.jobs.application.port.FitScorer;
 import com.jobs.domain.Classifier;
 import com.jobs.infrastructure.ai.AnthropicFitScorer;
 import com.jobs.infrastructure.config.AnthropicProperties;
+import com.jobs.infrastructure.config.CompanyFileLoader;
 import com.jobs.infrastructure.gupy.BuildIdExtractor;
 import com.jobs.infrastructure.gupy.GupyClient;
 import com.jobs.infrastructure.gupy.GupyJobSource;
@@ -13,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.net.http.HttpClient;
+import java.nio.file.Path;
 import java.time.Duration;
 
 @Configuration
@@ -45,5 +49,15 @@ public class BeanConfig {
     @Bean
     public FitScorer fitScorer(HttpClient httpClient, ObjectMapper objectMapper, AnthropicProperties anthropicProperties) {
         return new AnthropicFitScorer(httpClient, objectMapper, anthropicProperties.apiKey());
+    }
+
+    @Bean
+    public CompanyLoader companyLoader() {
+        return new CompanyFileLoader(Path.of("empresas.txt"));
+    }
+
+    @Bean
+    public SearchAndScoreJobsUseCase searchAndScoreJobsUseCase(SearchJobsUseCase searchJobsUseCase, FitScorer fitScorer) {
+        return new SearchAndScoreJobsUseCase(searchJobsUseCase, fitScorer);
     }
 }

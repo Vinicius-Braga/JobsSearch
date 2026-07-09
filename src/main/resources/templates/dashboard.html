@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Agregador de Vagas</title>
+<style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    h1 { font-size: 20px; margin: 0; }
+    .profile-box { background: white; padding: 16px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+                   margin-bottom: 20px; }
+    .profile-box p { margin: 0 0 8px; color: #333; }
+    .profile-box .empty { color: #999; font-style: italic; }
+    .profile-box a { color: #1a5fb4; text-decoration: none; font-size: 13px; }
+    .profile-box a:hover { text-decoration: underline; }
+    .actions { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    button.buscar { padding: 10px 20px; background: #2d2d2d; color: white; border: none; border-radius: 4px;
+                    cursor: pointer; font-size: 14px; }
+    button.buscar:hover { background: #444; }
+    form.logout button { background: none; border: none; color: #666; cursor: pointer; font-size: 13px;
+                          text-decoration: underline; padding: 0; }
+    .erro { color: #b91c1c; background: #fef2f2; padding: 10px 14px; border-radius: 4px; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #eee; text-align: left; font-size: 14px; }
+    th { background: #2d2d2d; color: white; }
+    .nota { font-weight: bold; text-align: center; width: 60px; }
+    .justificativa { color: #555; font-size: 13px; }
+    a.aplicar { color: #1a5fb4; text-decoration: none; white-space: nowrap; }
+    a.aplicar:hover { text-decoration: underline; }
+    .resumo { color: #666; font-size: 13px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <header>
+        <h1>Agregador de Vagas</h1>
+        <form class="logout" th:action="@{/logout}" method="post">
+            <button type="submit">Sair</button>
+        </form>
+    </header>
+
+    <div class="profile-box">
+        <p th:if="${profile != null and !#strings.isEmpty(profile)}" th:text="${profile}"></p>
+        <p class="empty" th:unless="${profile != null and !#strings.isEmpty(profile)}">
+            Você ainda não tem um perfil configurado.
+        </p>
+        <a th:href="@{/perfil/editar}">Editar perfil</a>
+    </div>
+
+    <div class="actions">
+        <form th:action="@{/buscar}" method="post">
+            <button class="buscar" type="submit">Buscar vagas</button>
+        </form>
+    </div>
+
+    <p class="erro" th:if="${erro}" th:text="${erro}"></p>
+    <p class="erro" th:if="${aviso}" th:text="${aviso}"></p>
+
+    <div th:if="${results != null}">
+        <p class="resumo" th:text="${#lists.size(results)} + ' vaga(s) encontrada(s)'"></p>
+        <table th:if="${!#lists.isEmpty(results)}">
+            <thead>
+            <tr>
+                <th>Nota</th>
+                <th>Vaga</th>
+                <th>Empresa</th>
+                <th>Local</th>
+                <th>Justificativa</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${results}">
+                <td class="nota" th:text="${r.fitScore.score} + '/10'"></td>
+                <td th:text="${r.job.job.title}"></td>
+                <td th:text="${r.job.job.company}"></td>
+                <td th:text="${r.job.job.city} + '/' + ${r.job.job.state}"></td>
+                <td class="justificativa" th:text="${r.fitScore.justification}"></td>
+                <td><a class="aplicar" th:href="${r.job.job.link}" target="_blank">Aplicar →</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

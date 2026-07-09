@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Entrar — Agregador de Vagas</title>
+<style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex; align-items: center;
+           justify-content: center; height: 100vh; margin: 0; }
+    .box { background: white; padding: 32px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+           width: 100%; max-width: 320px; }
+    h1 { font-size: 20px; margin-top: 0; }
+    label { display: block; margin-top: 12px; font-size: 13px; color: #444; }
+    input { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+    button { margin-top: 20px; width: 100%; padding: 10px; background: #2d2d2d; color: white; border: none;
+              border-radius: 4px; cursor: pointer; font-size: 14px; }
+    button:hover { background: #444; }
+    .erro { color: #b91c1c; font-size: 13px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="box">
+    <h1>Agregador de Vagas</h1>
+    <form th:action="@{/login}" method="post">
+        <label>Usuário</label>
+        <input type="text" name="username" autofocus>
+        <label>Senha</label>
+        <input type="password" name="password">
+        <button type="submit">Entrar</button>
+    </form>
+    <p class="erro" th:if="${param.error}">Usuário ou senha inválidos.</p>
+</div>
+</body>
+</html>

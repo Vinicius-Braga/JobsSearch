@@ -42,14 +42,16 @@ Objetivo: dado um perfil em texto livre e uma vaga, obter nota 1-10 + justificat
 
 Objetivo: sua namorada consegue usar o app de ponta a ponta, sem cobrança.
 
-- [ ] Escolher entre Thymeleaf (server-rendered, mais simples de integrar no Spring Boot) ou uma SPA separada — recomendo Thymeleaf pro MVP de 1 usuária, pra não abrir uma segunda stack de frontend agora
-- [ ] Login simples (pode ser usuário único fixo no início — não precisa de Spring Security completo ainda)
-- [ ] Persistência de perfil: banco leve (H2 ou SQLite) — trocar por Postgres só quando for multi-tenant de verdade (Fase 4)
-- [ ] Tela: editar perfil → botão "buscar vagas" → lista de resultados com nota + link de aplicar
-- [ ] Ligar Fase 1 (busca) + Fase 2 (score) nesse fluxo real, ponta a ponta
-- [ ] **Remover o Telegram** — o resultado passa a aparecer na tela (busca sob demanda), então o push de notificação da V1 não faz mais sentido. Remover `TelegramNotifier`, `TelegramProperties`, `NoOpNotifier`, o wiring de `Notifier` no `CliBeanConfig`/`CliRunner`, e as chaves `TELEGRAM_TOKEN`/`TELEGRAM_CHAT_ID` do `.env`/`application.yml`. Como o `CliApplication` (loop de 6h) deixa de ter função sem o Telegram e sem a V1 sendo mais usada, avaliar se ele também sai do projeto junto
+- [x] Thymeleaf (server-rendered) escolhido — sem abrir uma segunda stack de frontend
+- [x] Login com **Spring Security** de verdade (usuário único via `InMemoryUserDetailsManager`, senha com BCrypt, credenciais no `.env`) — não é multi-usuário ainda (isso é Fase 4), mas já é o mecanismo real, não uma checagem manual
+- [x] Persistência de perfil: H2 (arquivo local) via Spring Data JPA, perfil salvo por usuário logado — trocar por Postgres só quando for multi-tenant de verdade (Fase 4)
+- [x] Tela: editar perfil → botão "buscar vagas" → lista de resultados com nota + link de aplicar
+- [x] Ligar Fase 1 (busca) + Fase 2 (score) nesse fluxo real, ponta a ponta — `SearchAndScoreJobsUseCase`
+- [x] **Removida a V1 inteira**: `CliApplication`/`CliBeanConfig`/`CliRunner`, `TelegramNotifier`/`TelegramProperties`, `NoOpNotifier`, `RunCycleUseCase`, os ports `JobRepository`/`JobPublisher`/`Notifier`, e os publishers de CSV/HTML (`CsvExporter`, `CsvJobRepository`, `CsvPublisher`, `HtmlPublisher`). O resultado agora só existe na tela, sob demanda — nada mais roda em loop nem gera arquivo
 
-**Critério de pronto:** sua namorada edita o perfil dela, clica em buscar, e vê uma lista de vagas com nota, sem você rodar nada manualmente.
+**Critério de pronto:** sua namorada edita o perfil dela, clica em buscar, e vê uma lista de vagas com nota, sem você rodar nada manualmente. ✅ Testado de ponta a ponta no navegador: login, edição de perfil (persistiu após reiniciar o app — H2 funcionando), busca real na Gupy, e mensagem clara quando a IA falha ao pontuar (sem `ANTHROPIC_API_KEY`, testado o caminho de erro). Falta validar o caminho feliz com nota real — precisa de uma `ANTHROPIC_API_KEY` de verdade, que não está configurada neste ambiente de teste.
+
+> Limitação conhecida: a busca é síncrona — a pessoa fica esperando a página carregar enquanto a Gupy é consultada e cada vaga é pontuada uma por uma (pode levar 20-40s+ dependendo de quantas vagas passam no pré-filtro). Funciona pra 1 usuária de teste, mas vale considerar um indicador de carregamento ou processamento assíncrono antes de abrir pra mais gente (Fase 4).
 
 ## Fase 4 — Assinatura
 

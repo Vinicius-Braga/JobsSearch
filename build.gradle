@@ -15,17 +15,6 @@ java {
 }
 
 application {
-    // CLI de loop (V1) continua rodando via `./gradlew run`.
-    mainClass = 'com.jobs.infrastructure.cli.CliApplication'
-}
-
-springBoot {
-    mainClass = 'com.jobs.infrastructure.web.WebApplication'
-}
-
-// `application.mainClass` (com.jobs.Main) é herdado pelo bootRun por padrão
-// quando o plugin 'application' está presente — força explicitamente a classe web aqui.
-tasks.named('bootRun') {
     mainClass = 'com.jobs.infrastructure.web.WebApplication'
 }
 
@@ -36,10 +25,16 @@ repositories {
 dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.h2database:h2'
 
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

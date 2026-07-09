@@ -3,40 +3,56 @@
 [![CI](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/ci.yml/badge.svg)](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/codeql.yml/badge.svg)](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/codeql.yml)
 
-Ferramenta em Java que coleta vagas de páginas de carreira que usam a plataforma Gupy, de várias empresas ao mesmo tempo, e consolida tudo num só lugar — com deduplicação, filtro por área/senioridade/região, visualização em HTML e notificação no Telegram.
+Aplicação web em Java/Spring Boot que coleta vagas de páginas de carreira que usam a plataforma Gupy, filtra por área/senioridade/região, e usa a IA da Claude pra dar uma nota de aderência de cada vaga contra o seu perfil — sob demanda, direto no navegador.
+
+> Veja o [roadmap](docs/ROADMAP_V2.md) pra entender as fases já entregues e o que vem a seguir.
 
 ## Pré-requisitos
 
 - Java 21 ou superior instalado.
 - Conexão com internet.
+- Uma chave de API da [Anthropic](https://console.anthropic.com/) (opcional pra rodar, necessária pra ver as notas de aderência).
 
 ## Como rodar
 
 ```
 git clone https://github.com/Vinicius-Braga/JobsSearch.git
 cd JobsSearch
-.\gradlew.bat run
+.\gradlew.bat bootRun
 ```
 
-O programa fica rodando em loop, buscando vagas novas a cada 6 horas, até você fechar o terminal (`Ctrl+C`).
-
-A cada ciclo, ele imprime no terminal quantas vagas encontrou por empresa e quantas são novas.
+Acesse **http://localhost:8080** e faça login com as credenciais configuradas no `.env` (veja abaixo).
 
 ## Configuração
 
-Três arquivos de texto simples, na raiz do projeto, controlam o comportamento. Edite-os e rode `.\gradlew.bat run` de novo pra aplicar.
+Arquivos de texto na raiz do projeto controlam o comportamento. Edite-os e reinicie o `bootRun` pra aplicar.
+
+### `.env` — credenciais
+
+```
+APP_USER_USERNAME=admin
+APP_USER_PASSWORD=escolha_uma_senha
+ANTHROPIC_API_KEY=sua_chave_aqui
+```
+
+- **`APP_USER_USERNAME`/`APP_USER_PASSWORD`**: login da aplicação (usuário único por enquanto — multi-usuário vem na Fase 4 do roadmap). Se não definidos, caem no padrão `admin`/`changeme`.
+- **`ANTHROPIC_API_KEY`**: sem ela, a busca ainda roda e mostra quantas vagas bateram no filtro, mas nenhuma é pontuada pela IA (fica visível um aviso na tela).
+
+**Esse arquivo contém credenciais — nunca commite ele.** Já está no `.gitignore`.
 
 ### `empresas.txt` — quais empresas acompanhar
 
 Uma empresa por linha, no formato:
 
 ```
-subdominio,Nome que aparece na planilha
+subdominio,Nome que aparece na tela
 ```
 
 O "subdomínio" é a parte antes de `.gupy.io` na URL da página de carreiras da empresa (ex: `https://vivo.gupy.io/` → subdomínio é `vivo`).
 
-### `filtro.txt` — o que você quer ver
+### `filtro.txt` — pré-filtro por palavra-chave
+
+Roda antes da IA, pra reduzir o volume de vagas que precisam ser avaliadas:
 
 ```
 area=RH
@@ -48,42 +64,39 @@ regiao=RS,Porto Alegre
 - **senioridade**: Estagio, Auxiliar, Assistente, Junior, Pleno, Senior, Nao especificado
 - **regiao**: sigla do estado (ex: `RS`) ou nome/parte do nome da cidade (ex: `Porto Alegre`)
 
-Deixe uma linha vazia, apagada ou comentada com `#` pra não filtrar por aquele campo (traz todas as opções). Os valores são combinados com "E" — uma vaga só aparece se bater em todos os campos preenchidos.
+Deixe uma linha vazia, apagada ou comentada com `#` pra não filtrar por aquele campo (traz todas as opções). Os valores são combinados com "E" — uma vaga só passa pro pré-filtro se bater em todos os campos preenchidos.
 
-### `.env` — credenciais (Telegram e, na V2, a API da Claude)
+### Perfil (dentro do app)
 
-Se você quiser receber um aviso no Telegram toda vez que surgir uma vaga nova que bate no filtro:
+O perfil de busca — o que a IA usa pra dar a nota de aderência — é editado direto na tela, em texto livre, depois de fazer login. Fica salvo num banco H2 local (`data/jobsearch.mv.db`, também no `.gitignore`).
 
-1. No Telegram, fale com o **@BotFather** e mande `/newbot` pra criar um bot. Guarde o token que ele te der.
-2. Crie um grupo (ou canal) e adicione o bot como membro (em canal, como administrador).
-3. Mande uma mensagem qualquer no grupo/canal.
-4. Crie o arquivo `.env` na raiz do projeto:
-   ```
-   TELEGRAM_TOKEN=SEU_TOKEN_AQUI
-   ```
-5. Rode o programa uma vez — ele descobre e salva o `TELEGRAM_CHAT_ID` automaticamente no próprio `.env`.
+## Como usar
 
-**Esse arquivo contém credenciais — nunca commite ele.** Já está no `.gitignore`.
-
-Se `.env` não existir (ou não tiver `TELEGRAM_TOKEN`), o programa roda normalmente, só sem notificar.
-
-## Arquivos gerados
-
-Nenhum desses é versionado no Git (são dados, não código):
-
-| Arquivo | O que é |
-|---|---|
-| `vagas.csv` | Histórico completo e acumulado de todas as vagas já vistas, sem filtro. Cresce a cada ciclo, nunca duplica. |
-| `vagas_filtradas.csv` | Só as vagas que batem no `filtro.txt` atual, recalculado do zero a cada ciclo. |
-| `vagas.html` | A mesma lista filtrada, numa página com busca e ordenação por coluna — abra com duplo clique no navegador. |
+1. Rode `.\gradlew.bat bootRun` e acesse http://localhost:8080.
+2. Faça login com as credenciais do `.env`.
+3. Clique em **Editar perfil** e descreva o que você procura (área, senioridade, região, tipo de empresa).
+4. Clique em **Buscar vagas** — a busca roda nas empresas do `empresas.txt`, aplica o `filtro.txt`, e pontua cada vaga pré-filtrada com a IA (até 40 por busca, por custo).
+5. A lista aparece ordenada por nota, com link direto pra aplicar.
 
 ## Estrutura do código
 
 ```
 src/main/java/com/jobs/
- ├─ domain/            modelos e regras de negócio puras (Job, Company, Classifier, JobFilter)
- ├─ application/       caso de uso (RunCycleUseCase) + interfaces (JobSource, JobRepository, JobPublisher, Notifier)
- └─ infrastructure/    implementações concretas: Gupy, CSV, HTML, Telegram
+ ├─ domain/            modelos e regras de negócio puras (Job, Company, Classifier, JobFilter, UserProfile, FitScore)
+ ├─ application/       casos de uso (SearchJobsUseCase, SearchAndScoreJobsUseCase) + interfaces em application/port
+ └─ infrastructure/
+     ├─ web/           controllers, segurança (Spring Security), persistência de perfil (JPA/H2) — a aplicação Spring
+     ├─ ai/             AnthropicFitScorer (Claude Haiku) + FitScorerPlaygroundApplication (teste manual isolado)
+     ├─ gupy/           coleta de vagas na Gupy
+     └─ config/         classes @ConfigurationProperties tipadas (AnthropicProperties, AppUserProperties)
 ```
 
-Trocar de fonte de vagas, formato de saída ou canal de notificação significa implementar a interface correspondente em `application/port` — sem tocar no `RunCycleUseCase`.
+Trocar de fonte de vagas ou de motor de IA significa implementar a interface correspondente em `application/port` — sem tocar nos casos de uso.
+
+## Comandos úteis
+
+| Comando | O que faz |
+|---|---|
+| `.\gradlew.bat bootRun` | Sobe a aplicação web em http://localhost:8080 |
+| `.\gradlew.bat test` | Roda a suíte de testes |
+| `.\gradlew.bat fitScorerPlayground` | Testa o `FitScorer` isoladamente contra 4 vagas de exemplo (requer `ANTHROPIC_API_KEY`) |
