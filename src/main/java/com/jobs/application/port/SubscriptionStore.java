@@ -10,4 +10,6 @@ public interface SubscriptionStore {
     Instant getLastSearchAt(String username);
 
     void recordSearchNow(String username);
+
+    void upgradeToPlus(String username);
 }

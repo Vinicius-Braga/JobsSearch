@@ -13,3 +13,8 @@ spring:
 app:
   anthropic:
     api-key: ${ANTHROPIC_API_KEY:}
+  infinitepay:
+    handle: ${INFINITEPAY_HANDLE:}
+  # URL pública do app, usada pra montar redirect_url/webhook_url do checkout — trocar via
+  # APP_BASE_URL quando hospedado (localhost não é alcançável pelo webhook da InfinitePay).
+  base-url: ${APP_BASE_URL:http://localhost:8080}

@@ -17,7 +17,7 @@ public class AccountEntity {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    // "FREE" ou "PLUS" — Stripe ainda não integrado, upgrade é manual no banco por enquanto.
+    // "FREE" ou "PLUS" — atualizado via webhook de pagamento (InfinitePay) quando confirmado.
     // columnDefinition com default evita erro de NOT NULL ao adicionar essa coluna numa tabela
     // que já tem contas existentes (ficariam NULL sem o default).
     @Column(nullable = false, columnDefinition = "varchar(255) default 'FREE'")
@@ -45,6 +45,10 @@ public class AccountEntity {
 
     public String getPlan() {
         return plan;
+    }
+
+    public void setPlan(String plan) {
+        this.plan = plan;
     }
 
     public Instant getLastSearchAt() {

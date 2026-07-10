@@ -47,10 +47,14 @@ DATABASE_URL=jdbc:postgresql://SEU_HOST:5432/postgres?sslmode=require
 DATABASE_USERNAME=seu_usuario
 DATABASE_PASSWORD=sua_senha
 ANTHROPIC_API_KEY=sua_chave_aqui
+INFINITEPAY_HANDLE=seu_handle_infinitepay
+APP_BASE_URL=http://localhost:8080
 ```
 
 - **`DATABASE_URL`/`DATABASE_USERNAME`/`DATABASE_PASSWORD`**: conexão com o Postgres — é onde ficam as contas de usuário e os perfis de busca. Sem isso o app não sobe.
 - **`ANTHROPIC_API_KEY`**: sem ela, a busca ainda roda e mostra quantas vagas bateram no filtro, mas nenhuma é pontuada pela IA (fica visível um aviso na tela).
+- **`INFINITEPAY_HANDLE`**: seu identificador público na InfinitePay (o "$handle" da conta, sem o `$`) — usado pra criar o link de checkout da assinatura PLUS. Não é uma chave secreta.
+- **`APP_BASE_URL`**: URL pública do app, usada pra montar o link de retorno e o webhook de confirmação de pagamento. Em produção, precisa ser a URL real (alcançável de fora) — em `localhost` o webhook não é chamado pela InfinitePay.
 
 **Esse arquivo contém credenciais — nunca commite ele.** Já está no `.gitignore`.
 
@@ -83,7 +87,7 @@ A cada busca, a IA lê esse texto e decide sozinha os critérios de pré-filtro 
 ## Planos
 
 - **Grátis**: 1 busca por dia, mostra só as 3 primeiras vagas (o resto aparece borrado, indicando que tem mais).
-- **Plus (R$5/mês)**: busca ilimitada, todas as vagas visíveis. O Stripe ainda não está integrado — pra virar Plus por enquanto, é preciso atualizar a conta direto no banco (`UPDATE account SET plan='PLUS' WHERE username='...'`).
+- **Plus (R$5/mês)**: busca ilimitada, todas as vagas visíveis. Assinatura via checkout da [InfinitePay](https://www.infinitepay.io/) (PIX/cartão) — clique em "Ver planos" > "Assinar PLUS" no app. Requer `INFINITEPAY_HANDLE` e `APP_BASE_URL` configurados no `.env` (veja a seção **Configuração**); o webhook de confirmação de pagamento só é alcançável pela InfinitePay quando o app está hospedado publicamente (não funciona em `localhost` sem um túnel como ngrok).
 
 > A pontuação de aderência por vaga (nota + justificativa via IA) existe no código (`FitScorer`/`AnthropicFitScorer`), mas está desligada do fluxo principal por enquanto — ver o [roadmap](docs/ROADMAP_V2.md).
 

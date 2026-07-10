@@ -38,4 +38,12 @@ public class JpaSubscriptionStore implements SubscriptionStore {
             repository.save(account);
         });
     }
+
+    @Override
+    public void upgradeToPlus(String username) {
+        repository.findById(username).ifPresent(account -> {
+            account.setPlan(Plan.PLUS.name());
+            repository.save(account);
+        });
+    }
 }

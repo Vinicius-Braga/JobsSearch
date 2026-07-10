@@ -122,8 +122,9 @@
     .plan-card ul { list-style: none; margin: 0 0 18px; padding: 0; }
     .plan-card li { font-size: 13.5px; margin-bottom: 8px; }
     .plan-card li.off { opacity: .5; }
-    .plan-btn { width: 100%; padding: 10px; border-radius: 9px; border: 1px solid var(--input-border);
-                background: white; color: var(--ink-muted); font-weight: 700; font-size: 13.5px; cursor: default; }
+    .plan-btn { display: block; box-sizing: border-box; width: 100%; padding: 10px; border-radius: 9px;
+                border: 1px solid var(--input-border); background: white; color: var(--ink-muted); font-weight: 700;
+                font-size: 13.5px; text-align: center; text-decoration: none; cursor: default; }
     .plan-btn.primary { background: var(--amber-500); color: white; border: none; cursor: pointer; }
     .plan-btn.primary:hover { background: var(--amber-600); }
     .plan-card.highlight .plan-btn:not(.primary) { background: transparent; color: white; border-color: rgba(255,255,255,.3); }
@@ -208,7 +209,7 @@
                     <li>✓ Vagas ilimitadas por busca</li>
                     <li>✓ Suporte prioritário</li>
                 </ul>
-                <button class="plan-btn primary" id="assinarPlusBtn" th:unless="${plan == 'PLUS'}">Assinar PLUS</button>
+                <a class="plan-btn primary" th:href="@{/assinar}" th:unless="${plan == 'PLUS'}">Assinar PLUS</a>
                 <button class="plan-btn" disabled th:if="${plan == 'PLUS'}">Plano atual</button>
             </div>
         </div>
@@ -344,13 +345,6 @@
     const existingLimitLink = document.getElementById('limitUpgradeLink');
     if (existingLimitLink) {
         existingLimitLink.addEventListener('click', openPricingModal);
-    }
-
-    const assinarPlusBtn = document.getElementById('assinarPlusBtn');
-    if (assinarPlusBtn) {
-        assinarPlusBtn.addEventListener('click', () => {
-            alert('Pagamento ainda não está disponível — em breve! Por enquanto, fale com a gente pra virar PLUS.');
-        });
     }
 </script>
 </body>
