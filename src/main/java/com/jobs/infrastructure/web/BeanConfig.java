@@ -6,6 +6,7 @@ import com.jobs.application.SearchJobsForProfileUseCase;
 import com.jobs.application.SearchJobsUseCase;
 import com.jobs.application.port.CompanyLoader;
 import com.jobs.application.port.FitScorer;
+import com.jobs.application.port.LinkedInJobSource;
 import com.jobs.application.port.SearchCriteriaExtractor;
 import com.jobs.domain.Classifier;
 import com.jobs.infrastructure.ai.AnthropicFitScorer;
@@ -15,6 +16,8 @@ import com.jobs.infrastructure.config.CompanyFileLoader;
 import com.jobs.infrastructure.gupy.BuildIdExtractor;
 import com.jobs.infrastructure.gupy.GupyClient;
 import com.jobs.infrastructure.gupy.GupyJobSource;
+import com.jobs.infrastructure.linkedin.LinkedInHttpJobSource;
+import com.jobs.infrastructure.linkedin.LinkedInJobParser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -45,8 +48,14 @@ public class BeanConfig {
     }
 
     @Bean
-    public SearchJobsUseCase searchJobsUseCase(GupyJobSource gupyJobSource, Classifier classifier) {
-        return new SearchJobsUseCase(gupyJobSource, classifier);
+    public LinkedInJobSource linkedInJobSource(HttpClient httpClient) {
+        return new LinkedInHttpJobSource(httpClient, new LinkedInJobParser());
+    }
+
+    @Bean
+    public SearchJobsUseCase searchJobsUseCase(GupyJobSource gupyJobSource, LinkedInJobSource linkedInJobSource,
+            Classifier classifier) {
+        return new SearchJobsUseCase(gupyJobSource, linkedInJobSource, classifier);
     }
 
     @Bean

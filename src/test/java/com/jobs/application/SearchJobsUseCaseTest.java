@@ -1,6 +1,7 @@
 package com.jobs.application;
 
 import com.jobs.application.port.JobSource;
+import com.jobs.application.port.LinkedInJobSource;
 import com.jobs.domain.Classifier;
 import com.jobs.domain.ClassifiedJob;
 import com.jobs.domain.Company;
@@ -16,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SearchJobsUseCaseTest {
 
+    private static final LinkedInJobSource NO_LINKEDIN_RESULTS = filter -> List.of();
+
     @Test
     void returnsOnlyJobsMatchingFilter() {
         Company company = new Company("Vivo", "vivo");
@@ -23,7 +26,7 @@ class SearchJobsUseCaseTest {
         Job tiSenior = new Job(2L, "Desenvolvedor Senior", "Vivo", "Tecnologia", "Sao Paulo", "SP", "Remoto", "url2");
 
         JobSource fakeSource = fakeSourceFor(Map.of(company, List.of(rhJunior, tiSenior)));
-        SearchJobsUseCase useCase = new SearchJobsUseCase(fakeSource, new Classifier());
+        SearchJobsUseCase useCase = new SearchJobsUseCase(fakeSource, NO_LINKEDIN_RESULTS, new Classifier());
 
         JobFilter filter = new JobFilter(List.of("RH"), List.of(), List.of(), false, List.of());
         List<ClassifiedJob> result = useCase.search(List.of(company), filter);
@@ -40,7 +43,7 @@ class SearchJobsUseCaseTest {
         Job dotNetJob = new Job(2L, "Software Developer Pleno - .NET", "Vivo", "TI", "Sao Paulo", "SP", "remote", "url2");
 
         JobSource fakeSource = fakeSourceFor(Map.of(company, List.of(javaJob, dotNetJob)));
-        SearchJobsUseCase useCase = new SearchJobsUseCase(fakeSource, new Classifier());
+        SearchJobsUseCase useCase = new SearchJobsUseCase(fakeSource, NO_LINKEDIN_RESULTS, new Classifier());
 
         JobFilter filter = new JobFilter(List.of(), List.of(), List.of(), false, List.of("java"));
         List<ClassifiedJob> result = useCase.search(List.of(company), filter);
@@ -58,7 +61,7 @@ class SearchJobsUseCaseTest {
         Job saoPauloOnSiteJob = new Job(3L, "Auxiliar de RH", "Vivo", "RH", "Sao Paulo", "SP", "on-site", "url3");
 
         JobSource fakeSource = fakeSourceFor(Map.of(company, List.of(remoteJob, poaOnSiteJob, saoPauloOnSiteJob)));
-        SearchJobsUseCase useCase = new SearchJobsUseCase(fakeSource, new Classifier());
+        SearchJobsUseCase useCase = new SearchJobsUseCase(fakeSource, NO_LINKEDIN_RESULTS, new Classifier());
 
         // Perfil pediu "Porto Alegre ou remoto" -> regiao=["Porto Alegre"] e remoto=true.
         JobFilter filter = new JobFilter(List.of(), List.of(), List.of("Porto Alegre"), true, List.of());
@@ -82,12 +85,49 @@ class SearchJobsUseCaseTest {
             }
             return List.of(job);
         };
-        SearchJobsUseCase useCase = new SearchJobsUseCase(fakeSource, new Classifier());
+        SearchJobsUseCase useCase = new SearchJobsUseCase(fakeSource, NO_LINKEDIN_RESULTS, new Classifier());
 
-        List<ClassifiedJob> result = useCase.search(List.of(broken, ok), new JobFilter(List.of(), List.of(), List.of(), false, List.of()));
+        List<ClassifiedJob> result = useCase.search(List.of(broken, ok),
+                new JobFilter(List.of(), List.of(), List.of(), false, List.of()));
 
         assertEquals(1, result.size());
         assertTrue(result.stream().anyMatch(cj -> cj.job().id() == 1L));
+    }
+
+    @Test
+    void mergesLinkedInResultsWithGupyResults() {
+        Company company = new Company("Vivo", "vivo");
+        Job gupyJob = new Job(1L, "Analista de RH Junior", "Vivo", "RH", "Porto Alegre", "RS", "Hibrido", "url1");
+        Job linkedInJob = new Job(2L, "Assistente de RH", "Outra Empresa", "", "Porto Alegre", "RS", "on-site", "url2");
+
+        JobSource fakeSource = fakeSourceFor(Map.of(company, List.of(gupyJob)));
+        LinkedInJobSource fakeLinkedIn = filter -> List.of(linkedInJob);
+        SearchJobsUseCase useCase = new SearchJobsUseCase(fakeSource, fakeLinkedIn, new Classifier());
+
+        List<ClassifiedJob> result = useCase.search(List.of(company),
+                new JobFilter(List.of(), List.of(), List.of(), false, List.of()));
+
+        assertEquals(2, result.size());
+        assertTrue(result.stream().anyMatch(cj -> cj.job().id() == 1L));
+        assertTrue(result.stream().anyMatch(cj -> cj.job().id() == 2L));
+    }
+
+    @Test
+    void linkedInFailureDoesNotBreakGupyResults() {
+        Company company = new Company("Vivo", "vivo");
+        Job gupyJob = new Job(1L, "Analista de RH Junior", "Vivo", "RH", "Porto Alegre", "RS", "Hibrido", "url1");
+
+        JobSource fakeSource = fakeSourceFor(Map.of(company, List.of(gupyJob)));
+        LinkedInJobSource brokenLinkedIn = filter -> {
+            throw new RuntimeException("LinkedIn indisponivel");
+        };
+        SearchJobsUseCase useCase = new SearchJobsUseCase(fakeSource, brokenLinkedIn, new Classifier());
+
+        List<ClassifiedJob> result = useCase.search(List.of(company),
+                new JobFilter(List.of(), List.of(), List.of(), false, List.of()));
+
+        assertEquals(1, result.size());
+        assertEquals(gupyJob.id(), result.get(0).job().id());
     }
 
     private JobSource fakeSourceFor(Map<Company, List<Job>> jobsByCompany) {

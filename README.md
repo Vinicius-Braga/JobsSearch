@@ -3,7 +3,7 @@
 [![CI](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/ci.yml/badge.svg)](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/codeql.yml/badge.svg)](https://github.com/Vinicius-Braga/JobsSearch/actions/workflows/codeql.yml)
 
-Aplicação web em Java/Spring Boot que coleta vagas de páginas de carreira que usam a plataforma Gupy e usa a IA da Claude pra entender seu perfil de busca (área, senioridade, região, remoto ou não) e dar uma nota de aderência de cada vaga — sob demanda, direto no navegador.
+Aplicação web em Java/Spring Boot que coleta vagas de páginas de carreira que usam a plataforma Gupy e do LinkedIn, e usa a IA da Claude pra entender seu perfil de busca (área, senioridade, região, remoto ou não, stack) — sob demanda, direto no navegador.
 
 > Veja o [roadmap](docs/ROADMAP_V2.md) pra entender as fases já entregues e o que vem a seguir.
 
@@ -97,6 +97,7 @@ src/main/java/com/jobs/
      ├─ web/           controllers, segurança (Spring Security, multi-usuário), persistência (JPA/Postgres) — a aplicação Spring
      ├─ ai/             AnthropicFitScorer + AnthropicSearchCriteriaExtractor (Claude Haiku) + FitScorerPlaygroundApplication (teste manual isolado)
      ├─ gupy/           coleta de vagas na Gupy
+     ├─ linkedin/       coleta de vagas no LinkedIn (endpoint público não-oficial, scraping de HTML)
      └─ config/         classes @ConfigurationProperties tipadas (AnthropicProperties)
 ```
 
