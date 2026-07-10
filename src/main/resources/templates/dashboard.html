@@ -75,6 +75,9 @@
              background: var(--cream-50); color: var(--ink-muted); }
     a.aplicar { color: var(--navy-800); font-weight: 700; text-decoration: none; white-space: nowrap; }
     a.aplicar:hover { text-decoration: underline; }
+    tr.locked-row td { filter: blur(4px); user-select: none; color: var(--ink-soft); }
+    tr.upsell-row td { text-align: center; padding: 18px 16px; background: var(--cream-50);
+                        font-weight: 700; color: var(--navy-800); font-size: 13.5px; }
 </style>
 </head>
 <body>
@@ -154,25 +157,44 @@
         if (data.aviso) {
             html += '<p class="aviso">' + escapeHtml(data.aviso) + '</p>';
         }
-        html += '<p class="resumo">' + data.results.length + ' vaga(s) encontrada(s)</p>';
 
-        if (data.results.length > 0) {
-            html += '<table><thead><tr>'
-                + '<th>Vaga</th><th>Empresa</th><th>Local</th><th>Modalidade</th><th>Área</th><th>Senioridade</th><th></th>'
-                + '</tr></thead><tbody>';
-            for (const r of data.results) {
-                html += '<tr>'
-                    + '<td>' + escapeHtml(r.job.title) + '</td>'
-                    + '<td>' + escapeHtml(r.job.company) + '</td>'
-                    + '<td>' + escapeHtml(r.job.city) + '/' + escapeHtml(r.job.state) + '</td>'
-                    + '<td>' + escapeHtml(r.job.workMode) + '</td>'
-                    + '<td><span class="badge">' + escapeHtml(r.area) + '</span></td>'
-                    + '<td><span class="badge">' + escapeHtml(r.seniority) + '</span></td>'
-                    + '<td><a class="aplicar" href="' + r.job.link + '" target="_blank">Aplicar →</a></td>'
-                    + '</tr>';
-            }
-            html += '</tbody></table>';
+        const blocked = data.results.length === 0 && data.lockedCount === 0 && data.aviso;
+        if (blocked) {
+            resultsArea.innerHTML = html;
+            return;
         }
+
+        const total = data.results.length + data.lockedCount;
+        html += '<p class="resumo">' + total + ' vaga(s) encontrada(s)</p>';
+
+        html += '<table><thead><tr>'
+            + '<th>Vaga</th><th>Empresa</th><th>Local</th><th>Modalidade</th><th>Área</th><th>Senioridade</th><th></th>'
+            + '</tr></thead><tbody>';
+        for (const r of data.results) {
+            html += '<tr>'
+                + '<td>' + escapeHtml(r.job.title) + '</td>'
+                + '<td>' + escapeHtml(r.job.company) + '</td>'
+                + '<td>' + escapeHtml(r.job.city) + '/' + escapeHtml(r.job.state) + '</td>'
+                + '<td>' + escapeHtml(r.job.workMode) + '</td>'
+                + '<td><span class="badge">' + escapeHtml(r.area) + '</span></td>'
+                + '<td><span class="badge">' + escapeHtml(r.seniority) + '</span></td>'
+                + '<td><a class="aplicar" href="' + r.job.link + '" target="_blank">Aplicar →</a></td>'
+                + '</tr>';
+        }
+        for (let i = 0; i < data.lockedCount; i++) {
+            html += '<tr class="locked-row">'
+                + '<td>Vaga bloqueada</td><td>Empresa oculta</td><td>Local oculto</td>'
+                + '<td>••••</td><td><span class="badge">•••</span></td><td><span class="badge">•••</span></td>'
+                + '<td>🔒</td>'
+                + '</tr>';
+        }
+        if (data.lockedCount > 0) {
+            html += '<tr class="upsell-row"><td colspan="7">'
+                + '+' + data.lockedCount + ' vaga(s) encontrada(s) — assine o Plus por R$5/mês pra ver todas'
+                + '</td></tr>';
+        }
+        html += '</tbody></table>';
+
         resultsArea.innerHTML = html;
     }
 

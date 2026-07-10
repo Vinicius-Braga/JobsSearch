@@ -80,6 +80,11 @@ A cada busca, a IA lê esse texto e decide sozinha os critérios de pré-filtro 
 4. Na tela inicial, o botão de busca fica colorido/ativo assim que há um perfil salvo. Clique nele — a busca roda em background (com uma animação de radar), sem recarregar a página: a IA extrai os critérios do seu perfil (área, senioridade, região, remoto ou não) e filtra as vagas das empresas do `empresas.txt`.
 5. A lista aparece com as vagas encontradas (título, empresa, local, modalidade, área, senioridade) e link direto pra aplicar.
 
+## Planos
+
+- **Grátis**: 1 busca por dia, mostra só as 3 primeiras vagas (o resto aparece borrado, indicando que tem mais).
+- **Plus (R$5/mês)**: busca ilimitada, todas as vagas visíveis. O Stripe ainda não está integrado — pra virar Plus por enquanto, é preciso atualizar a conta direto no banco (`UPDATE account SET plan='PLUS' WHERE username='...'`).
+
 > A pontuação de aderência por vaga (nota + justificativa via IA) existe no código (`FitScorer`/`AnthropicFitScorer`), mas está desligada do fluxo principal por enquanto — ver o [roadmap](docs/ROADMAP_V2.md).
 
 ## Estrutura do código

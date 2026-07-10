@@ -4,5 +4,5 @@ import com.jobs.domain.ClassifiedJob;
 
 import java.util.List;
 
-public record BuscarResponse(List<ClassifiedJob> results, String aviso) {
+public record BuscarResponse(List<ClassifiedJob> results, int lockedCount, String aviso) {
 }

@@ -3,8 +3,10 @@ package com.jobs.infrastructure.web;
 import com.jobs.application.SearchJobsForProfileUseCase;
 import com.jobs.application.port.CompanyLoader;
 import com.jobs.application.port.ProfileStore;
+import com.jobs.application.port.SubscriptionStore;
 import com.jobs.domain.ClassifiedJob;
 import com.jobs.domain.Company;
+import com.jobs.domain.Plan;
 import com.jobs.domain.UserProfile;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -15,20 +17,29 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.security.Principal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 @Controller
 public class DashboardController {
 
+    // Plano gratuito: só mostra as N primeiras vagas (resto fica "borrado" no front) e 1 busca/dia.
+    private static final int FREE_VISIBLE_RESULTS = 3;
+    private static final ZoneId ZONE = ZoneId.of("America/Sao_Paulo");
+
     private final ProfileStore profileStore;
     private final SearchJobsForProfileUseCase searchJobsForProfileUseCase;
     private final CompanyLoader companyLoader;
+    private final SubscriptionStore subscriptionStore;
 
     public DashboardController(ProfileStore profileStore, SearchJobsForProfileUseCase searchJobsForProfileUseCase,
-            CompanyLoader companyLoader) {
+            CompanyLoader companyLoader, SubscriptionStore subscriptionStore) {
         this.profileStore = profileStore;
         this.searchJobsForProfileUseCase = searchJobsForProfileUseCase;
         this.companyLoader = companyLoader;
+        this.subscriptionStore = subscriptionStore;
     }
 
     @GetMapping("/")
@@ -53,15 +64,37 @@ public class DashboardController {
     @PostMapping(value = "/buscar", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public BuscarResponse buscar(Principal principal) throws Exception {
+        String username = principal.getName();
         String description = currentDescription(principal);
         if (description == null || description.isBlank()) {
-            return new BuscarResponse(List.of(), "Edite seu perfil antes de buscar vagas.");
+            return new BuscarResponse(List.of(), 0, "Edite seu perfil antes de buscar vagas.");
+        }
+
+        Plan plan = subscriptionStore.getPlan(username);
+        if (plan == Plan.FREE && alreadySearchedToday(username)) {
+            return new BuscarResponse(List.of(), 0,
+                    "Você já usou sua busca gratuita de hoje. Assine o Plus por R$5/mês pra buscar sem limite.");
         }
 
         List<Company> companies = companyLoader.load();
         List<ClassifiedJob> results = searchJobsForProfileUseCase.search(companies, new UserProfile(description));
+        subscriptionStore.recordSearchNow(username);
 
-        return new BuscarResponse(results, null);
+        if (plan == Plan.FREE && results.size() > FREE_VISIBLE_RESULTS) {
+            List<ClassifiedJob> visible = results.subList(0, FREE_VISIBLE_RESULTS);
+            int lockedCount = results.size() - FREE_VISIBLE_RESULTS;
+            return new BuscarResponse(visible, lockedCount, null);
+        }
+
+        return new BuscarResponse(results, 0, null);
+    }
+
+    private boolean alreadySearchedToday(String username) {
+        Instant lastSearchAt = subscriptionStore.getLastSearchAt(username);
+        if (lastSearchAt == null) {
+            return false;
+        }
+        return LocalDate.ofInstant(lastSearchAt, ZONE).equals(LocalDate.now(ZONE));
     }
 
     private String currentDescription(Principal principal) {
