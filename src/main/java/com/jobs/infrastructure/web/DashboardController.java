@@ -25,9 +25,10 @@ import java.util.List;
 @Controller
 public class DashboardController {
 
-    // Plano gratuito: só mostra as N primeiras vagas (resto fica "borrado" no front) e 1 busca/dia.
+    // Plano gratuito: só mostra as N primeiras vagas (resto vira upsell) e 1 busca/dia.
     private static final int FREE_VISIBLE_RESULTS = 3;
     private static final ZoneId ZONE = ZoneId.of("America/Sao_Paulo");
+    private static final String PLUS_PRICE = "R$5";
 
     private final ProfileStore profileStore;
     private final SearchJobsForProfileUseCase searchJobsForProfileUseCase;
@@ -44,7 +45,13 @@ public class DashboardController {
 
     @GetMapping("/")
     public String home(Model model, Principal principal) {
+        String username = principal.getName();
+        Plan plan = subscriptionStore.getPlan(username);
+
         model.addAttribute("profile", currentDescription(principal));
+        model.addAttribute("plan", plan.name());
+        model.addAttribute("planPrice", PLUS_PRICE);
+        model.addAttribute("limitReached", plan == Plan.FREE && alreadySearchedToday(username));
         return "dashboard";
     }
 
@@ -73,7 +80,7 @@ public class DashboardController {
         Plan plan = subscriptionStore.getPlan(username);
         if (plan == Plan.FREE && alreadySearchedToday(username)) {
             return new BuscarResponse(List.of(), 0,
-                    "Você já usou sua busca gratuita de hoje. Assine o Plus por R$5/mês pra buscar sem limite.");
+                    "Você já usou sua busca de hoje no plano Free. Assine o PLUS pra buscar sem limites.");
         }
 
         List<Company> companies = companyLoader.load();
