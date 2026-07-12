@@ -7,6 +7,8 @@ import com.jobs.domain.ClassifiedJob;
 import com.jobs.domain.Company;
 import com.jobs.domain.Job;
 import com.jobs.domain.JobFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +17,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class SearchJobsUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(SearchJobsUseCase.class);
 
     private final JobSource jobSource;
     private final LinkedInJobSource linkedInJobSource;
@@ -47,7 +51,7 @@ public class SearchJobsUseCase {
             List<Job> jobs = jobSource.findJobs(company);
             classifyAndAdd(jobs, filter, matched);
         } catch (Exception e) {
-            System.out.println(company.name() + " -> ERRO: " + e.getMessage());
+            log.warn("{} -> ERRO: {}", company.name(), e.getMessage());
         }
     }
 
@@ -56,7 +60,7 @@ public class SearchJobsUseCase {
             List<Job> jobs = linkedInJobSource.search(filter);
             classifyAndAdd(jobs, filter, matched);
         } catch (Exception e) {
-            System.out.println("LinkedIn -> ERRO: " + e.getMessage());
+            log.warn("LinkedIn -> ERRO: {}", e.getMessage());
         }
     }
 

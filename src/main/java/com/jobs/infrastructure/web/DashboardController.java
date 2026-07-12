@@ -28,7 +28,6 @@ public class DashboardController {
     // Plano gratuito: só mostra as N primeiras vagas (resto vira upsell) e 1 busca/dia.
     private static final int FREE_VISIBLE_RESULTS = 3;
     private static final ZoneId ZONE = ZoneId.of("America/Sao_Paulo");
-    private static final String PLUS_PRICE = "R$5";
 
     private final ProfileStore profileStore;
     private final SearchJobsForProfileUseCase searchJobsForProfileUseCase;
@@ -50,7 +49,7 @@ public class DashboardController {
 
         model.addAttribute("profile", currentDescription(principal));
         model.addAttribute("plan", plan.name());
-        model.addAttribute("planPrice", PLUS_PRICE);
+        model.addAttribute("planPrice", Plan.PLUS.priceDisplay());
         model.addAttribute("limitReached", plan == Plan.FREE && alreadySearchedToday(username));
         return "dashboard";
     }

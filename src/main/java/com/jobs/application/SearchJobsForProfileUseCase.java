@@ -5,6 +5,8 @@ import com.jobs.domain.ClassifiedJob;
 import com.jobs.domain.Company;
 import com.jobs.domain.JobFilter;
 import com.jobs.domain.UserProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -15,6 +17,8 @@ import java.util.List;
  * daqui — decisão de custo/simplicidade tomada por enquanto.
  */
 public class SearchJobsForProfileUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(SearchJobsForProfileUseCase.class);
 
     private final SearchJobsUseCase searchJobsUseCase;
     private final SearchCriteriaExtractor searchCriteriaExtractor;
@@ -34,8 +38,7 @@ public class SearchJobsForProfileUseCase {
         try {
             return searchCriteriaExtractor.extract(profile);
         } catch (Exception e) {
-            System.out.println("Falha ao extrair critérios de busca do perfil, buscando sem pré-filtro: "
-                    + e.getMessage());
+            log.warn("Falha ao extrair critérios de busca do perfil, buscando sem pré-filtro: {}", e.getMessage());
             return new JobFilter(List.of(), List.of(), List.of(), false, List.of());
         }
     }

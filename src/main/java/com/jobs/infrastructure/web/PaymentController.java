@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.jobs.application.port.PaymentGateway;
 import com.jobs.application.port.PaymentStore;
 import com.jobs.application.port.SubscriptionStore;
+import com.jobs.domain.Plan;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,6 @@ import java.util.UUID;
 @Controller
 public class PaymentController {
 
-    private static final long PLUS_PRICE_CENTS = 500; // R$5,00 — mesmo valor de DashboardController.PLUS_PRICE
     private static final String PLUS_DESCRIPTION = "Assinatura JobSearch PLUS - 1 mes";
 
     private final PaymentGateway paymentGateway;
@@ -46,7 +46,7 @@ public class PaymentController {
 
         String redirectUrl = baseUrl + "/?assinatura=processando";
         String webhookUrl = baseUrl + "/webhooks/infinitepay";
-        String checkoutUrl = paymentGateway.createCheckoutLink(orderNsu, PLUS_PRICE_CENTS, PLUS_DESCRIPTION,
+        String checkoutUrl = paymentGateway.createCheckoutLink(orderNsu, Plan.PLUS.priceCents(), PLUS_DESCRIPTION,
                 redirectUrl, webhookUrl);
 
         return "redirect:" + checkoutUrl;

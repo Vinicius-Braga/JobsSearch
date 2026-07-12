@@ -8,12 +8,16 @@ import com.jobs.domain.FitScore;
 import com.jobs.domain.JobFilter;
 import com.jobs.domain.ScoredJob;
 import com.jobs.domain.UserProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class SearchAndScoreJobsUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(SearchAndScoreJobsUseCase.class);
 
     // Limite defensivo de custo: cada vaga pontuada é uma chamada à API da Claude.
     private static final int MAX_JOBS_TO_SCORE = 40;
@@ -43,7 +47,7 @@ public class SearchAndScoreJobsUseCase {
                 FitScore fitScore = fitScorer.score(profile, job);
                 scored.add(new ScoredJob(job, fitScore));
             } catch (Exception e) {
-                System.out.println("Falha ao pontuar vaga \"" + job.job().title() + "\": " + e.getMessage());
+                log.warn("Falha ao pontuar vaga \"{}\": {}", job.job().title(), e.getMessage());
             }
         }
 
@@ -55,8 +59,7 @@ public class SearchAndScoreJobsUseCase {
         try {
             return searchCriteriaExtractor.extract(profile);
         } catch (Exception e) {
-            System.out.println("Falha ao extrair critérios de busca do perfil, buscando sem pré-filtro: "
-                    + e.getMessage());
+            log.warn("Falha ao extrair critérios de busca do perfil, buscando sem pré-filtro: {}", e.getMessage());
             return new JobFilter(List.of(), List.of(), List.of(), false, List.of());
         }
     }
