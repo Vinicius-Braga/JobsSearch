@@ -21,6 +21,7 @@ import com.jobs.infrastructure.gupy.GupyJobSource;
 import com.jobs.infrastructure.linkedin.LinkedInHttpJobSource;
 import com.jobs.infrastructure.linkedin.LinkedInJobParser;
 import com.jobs.infrastructure.payment.InfinitePayGateway;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -63,18 +64,19 @@ public class BeanConfig {
 
     @Bean
     public FitScorer fitScorer(HttpClient httpClient, ObjectMapper objectMapper, AnthropicProperties anthropicProperties) {
-        return new AnthropicFitScorer(httpClient, objectMapper, anthropicProperties.apiKey());
+        return new AnthropicFitScorer(httpClient, objectMapper, anthropicProperties.apiKey(), anthropicProperties.model());
     }
 
     @Bean
-    public CompanyLoader companyLoader() {
-        return new CompanyFileLoader(Path.of("empresas.txt"));
+    public CompanyLoader companyLoader(@Value("${app.companies-file}") String companiesFile) {
+        return new CompanyFileLoader(Path.of(companiesFile));
     }
 
     @Bean
     public SearchCriteriaExtractor searchCriteriaExtractor(HttpClient httpClient, ObjectMapper objectMapper,
             AnthropicProperties anthropicProperties) {
-        return new AnthropicSearchCriteriaExtractor(httpClient, objectMapper, anthropicProperties.apiKey());
+        return new AnthropicSearchCriteriaExtractor(httpClient, objectMapper, anthropicProperties.apiKey(),
+                anthropicProperties.model());
     }
 
     // Pronto pra religar a pontuação por IA por vaga — hoje não é chamado no fluxo web

@@ -34,6 +34,20 @@ docker compose up --build
 
 Sobe a aplicação inteira num container (só a aplicação — o banco é o Postgres externo configurado no `.env`, ex: Supabase). `empresas.txt` é montado como volume, então dá pra editá-lo sem rebuildar a imagem.
 
+Pra rodar 100% offline, sem depender de um Postgres externo, use o profile `local`, que sobe um Postgres junto:
+
+```
+docker compose --profile local up --build
+```
+
+Nesse caso, aponte o `.env` pro serviço `db` do compose em vez do Supabase:
+
+```
+DATABASE_URL=jdbc:postgresql://db:5432/jobsearch
+DATABASE_USERNAME=jobsearch
+DATABASE_PASSWORD=jobsearch
+```
+
 Em ambos os casos, acesse **http://localhost:8080**, clique em **Criar uma conta** pra se cadastrar, e faça login.
 
 ## Configuração
@@ -47,14 +61,18 @@ DATABASE_URL=jdbc:postgresql://SEU_HOST:5432/postgres?sslmode=require
 DATABASE_USERNAME=seu_usuario
 DATABASE_PASSWORD=sua_senha
 ANTHROPIC_API_KEY=sua_chave_aqui
+ANTHROPIC_MODEL=claude-haiku-4-5-20251001
 INFINITEPAY_HANDLE=seu_handle_infinitepay
 APP_BASE_URL=http://localhost:8080
+COMPANIES_FILE=empresas.txt
 ```
 
 - **`DATABASE_URL`/`DATABASE_USERNAME`/`DATABASE_PASSWORD`**: conexão com o Postgres — é onde ficam as contas de usuário e os perfis de busca. Sem isso o app não sobe.
 - **`ANTHROPIC_API_KEY`**: sem ela, a busca ainda roda e mostra quantas vagas bateram no filtro, mas nenhuma é pontuada pela IA (fica visível um aviso na tela).
+- **`ANTHROPIC_MODEL`**: opcional — modelo da Claude usado pra extrair critérios do perfil e (quando religada) pontuar vagas. Se omitido, usa `claude-haiku-4-5-20251001`.
 - **`INFINITEPAY_HANDLE`**: seu identificador público na InfinitePay (o "$handle" da conta, sem o `$`) — usado pra criar o link de checkout da assinatura PLUS. Não é uma chave secreta.
 - **`APP_BASE_URL`**: URL pública do app, usada pra montar o link de retorno e o webhook de confirmação de pagamento. Em produção, precisa ser a URL real (alcançável de fora) — em `localhost` o webhook não é chamado pela InfinitePay.
+- **`COMPANIES_FILE`**: opcional — caminho do arquivo de empresas monitoradas (veja a seção **`empresas.txt`** abaixo). Se omitido, usa `empresas.txt` na raiz do projeto.
 
 **Esse arquivo contém credenciais — nunca commite ele.** Já está no `.gitignore`.
 

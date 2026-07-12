@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AnthropicSearchCriteriaExtractorTest {
 
     private final AnthropicSearchCriteriaExtractor extractor = new AnthropicSearchCriteriaExtractor(
-            HttpClient.newHttpClient(), new ObjectMapper(), "fake-key");
+            HttpClient.newHttpClient(), new ObjectMapper(), "fake-key", "claude-haiku-4-5-20251001");
 
     @Test
     void parsesFullCriteria() throws Exception {

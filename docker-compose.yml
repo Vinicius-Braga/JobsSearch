@@ -8,3 +8,25 @@ services:
     volumes:
       - ./empresas.txt:/app/empresas.txt:ro
     restart: unless-stopped
+
+  # Postgres local, opcional — pra quem quer rodar 100% offline sem depender do Supabase.
+  # Não sobe por padrão: só entra com `docker compose --profile local up --build`.
+  # Nesse caso, aponte o DATABASE_URL do .env pra este serviço, ex:
+  # DATABASE_URL=jdbc:postgresql://db:5432/jobsearch
+  # DATABASE_USERNAME=jobsearch
+  # DATABASE_PASSWORD=jobsearch
+  db:
+    image: postgres:16-alpine
+    profiles: ["local"]
+    environment:
+      POSTGRES_DB: jobsearch
+      POSTGRES_USER: jobsearch
+      POSTGRES_PASSWORD: jobsearch
+    ports:
+      - "5432:5432"
+    volumes:
+      - jobsearch-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  jobsearch-db-data:

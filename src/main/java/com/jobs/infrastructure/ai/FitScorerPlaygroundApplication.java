@@ -42,7 +42,7 @@ public class FitScorerPlaygroundApplication {
 
     @Bean
     public FitScorer fitScorer(HttpClient httpClient, ObjectMapper objectMapper, AnthropicProperties anthropicProperties) {
-        return new AnthropicFitScorer(httpClient, objectMapper, anthropicProperties.apiKey());
+        return new AnthropicFitScorer(httpClient, objectMapper, anthropicProperties.apiKey(), anthropicProperties.model());
     }
 }
 

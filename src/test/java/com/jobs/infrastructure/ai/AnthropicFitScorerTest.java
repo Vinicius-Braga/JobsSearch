@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AnthropicFitScorerTest {
 
     private final AnthropicFitScorer scorer = new AnthropicFitScorer(
-            HttpClient.newHttpClient(), new ObjectMapper(), "fake-key");
+            HttpClient.newHttpClient(), new ObjectMapper(), "fake-key", "claude-haiku-4-5-20251001");
 
     @Test
     void parsesPlainJsonResponse() throws Exception {

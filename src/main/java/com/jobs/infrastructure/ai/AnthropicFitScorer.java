@@ -21,17 +21,18 @@ public class AnthropicFitScorer implements FitScorer {
 
     private static final String API_URL = "https://api.anthropic.com/v1/messages";
     private static final String ANTHROPIC_VERSION = "2023-06-01";
-    private static final String MODEL = "claude-haiku-4-5-20251001";
     private static final int MAX_TOKENS = 300;
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
     private final String apiKey;
+    private final String model;
 
-    public AnthropicFitScorer(HttpClient httpClient, ObjectMapper objectMapper, String apiKey) {
+    public AnthropicFitScorer(HttpClient httpClient, ObjectMapper objectMapper, String apiKey, String model) {
         this.httpClient = httpClient;
         this.objectMapper = objectMapper;
         this.apiKey = apiKey;
+        this.model = model;
     }
 
     @Override
@@ -85,7 +86,7 @@ public class AnthropicFitScorer implements FitScorer {
                 classifiedJob.seniority());
 
         ObjectNode root = objectMapper.createObjectNode();
-        root.put("model", MODEL);
+        root.put("model", model);
         root.put("max_tokens", MAX_TOKENS);
         ArrayNode messages = root.putArray("messages");
         ObjectNode message = messages.addObject();
