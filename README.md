@@ -71,7 +71,7 @@ COMPANIES_FILE=empresas.txt
 - **`ANTHROPIC_API_KEY`**: sem ela, a busca ainda roda e mostra quantas vagas bateram no filtro, mas nenhuma é pontuada pela IA (fica visível um aviso na tela).
 - **`ANTHROPIC_MODEL`**: opcional — modelo da Claude usado pra extrair critérios do perfil e (quando religada) pontuar vagas. Se omitido, usa `claude-haiku-4-5-20251001`.
 - **`INFINITEPAY_HANDLE`**: seu identificador público na InfinitePay (o "$handle" da conta, sem o `$`) — usado pra criar o link de checkout da assinatura PLUS. Não é uma chave secreta.
-- **`APP_BASE_URL`**: URL pública do app, usada pra montar o link de retorno e o webhook de confirmação de pagamento. Em produção, precisa ser a URL real (alcançável de fora) — em `localhost` o webhook não é chamado pela InfinitePay.
+- **`APP_BASE_URL`**: URL pública do app, usada pra montar o link de retorno e o webhook de confirmação de pagamento. Opcional no Render — se omitida, o app usa automaticamente a `RENDER_EXTERNAL_URL` que o Render injeta sozinho. Em `localhost` sem hospedagem, o webhook simplesmente não é alcançável pela InfinitePay (não tem como testar o pagamento real sem um túnel como ngrok ou estar hospedado).
 - **`COMPANIES_FILE`**: opcional — caminho do arquivo de empresas monitoradas (veja a seção **`empresas.txt`** abaixo). Se omitido, usa `empresas.txt` na raiz do projeto.
 
 **Esse arquivo contém credenciais — nunca commite ele.** Já está no `.gitignore`.
@@ -124,6 +124,15 @@ src/main/java/com/jobs/
 ```
 
 Trocar de fonte de vagas ou de motor de IA significa implementar a interface correspondente em `application/port` — sem tocar nos casos de uso.
+
+## Hospedagem (Render)
+
+O repo tem um `render.yaml` (Blueprint do Render) pronto — builda direto do `Dockerfile`, sem passo manual de build.
+
+1. No [dashboard do Render](https://dashboard.render.com/), **New > Blueprint**, conecte este repositório.
+2. O Render detecta o `render.yaml` e propõe o serviço `jobsearch` (Docker, plano free).
+3. Preencha as variáveis marcadas como secretas no formulário: `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `ANTHROPIC_API_KEY`, `INFINITEPAY_HANDLE`. Não é preciso configurar `APP_BASE_URL` — o app detecta a URL pública sozinho via `RENDER_EXTERNAL_URL`.
+4. Deploy. O plano free "dorme" depois de 15 min sem uso e demora ~1min pra acordar na próxima requisição — normal, não é bug.
 
 ## Comandos úteis
 

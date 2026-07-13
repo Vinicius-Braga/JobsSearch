@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: jobsearch
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /login
+    envVars:
+      # Postgres externo (Supabase) — preencha no dashboard do Render, nunca aqui.
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      # Sem ela a busca roda mas sem extração de critérios por IA (ver README).
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # Identificador público da conta InfinitePay (não é chave secreta), usado no checkout.
+      - key: INFINITEPAY_HANDLE
+        sync: false
+      # Não precisa configurar: o app usa RENDER_EXTERNAL_URL (injetado automaticamente pelo
+      # Render) como base-url quando APP_BASE_URL não está definido.
