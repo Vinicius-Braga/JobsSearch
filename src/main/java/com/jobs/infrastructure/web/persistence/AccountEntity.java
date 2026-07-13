@@ -5,8 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-import java.time.Instant;
-
 @Entity
 @Table(name = "account")
 public class AccountEntity {
@@ -16,15 +14,6 @@ public class AccountEntity {
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
-
-    // "FREE" ou "PLUS" — atualizado via webhook de pagamento (InfinitePay) quando confirmado.
-    // columnDefinition com default evita erro de NOT NULL ao adicionar essa coluna numa tabela
-    // que já tem contas existentes (ficariam NULL sem o default).
-    @Column(nullable = false, columnDefinition = "varchar(255) default 'FREE'")
-    private String plan = "FREE";
-
-    @Column(name = "last_search_at")
-    private Instant lastSearchAt;
 
     protected AccountEntity() {
         // JPA
@@ -41,21 +30,5 @@ public class AccountEntity {
 
     public String getPasswordHash() {
         return passwordHash;
-    }
-
-    public String getPlan() {
-        return plan;
-    }
-
-    public void setPlan(String plan) {
-        this.plan = plan;
-    }
-
-    public Instant getLastSearchAt() {
-        return lastSearchAt;
-    }
-
-    public void setLastSearchAt(Instant lastSearchAt) {
-        this.lastSearchAt = lastSearchAt;
     }
 }

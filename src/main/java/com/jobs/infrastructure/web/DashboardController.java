@@ -3,10 +3,8 @@ package com.jobs.infrastructure.web;
 import com.jobs.application.SearchJobsForProfileUseCase;
 import com.jobs.application.port.CompanyLoader;
 import com.jobs.application.port.ProfileStore;
-import com.jobs.application.port.SubscriptionStore;
 import com.jobs.domain.ClassifiedJob;
 import com.jobs.domain.Company;
-import com.jobs.domain.Plan;
 import com.jobs.domain.UserProfile;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -17,40 +15,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.security.Principal;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.List;
 
 @Controller
 public class DashboardController {
 
-    // Plano gratuito: só mostra as N primeiras vagas (resto vira upsell) e 1 busca/dia.
-    private static final int FREE_VISIBLE_RESULTS = 3;
-    private static final ZoneId ZONE = ZoneId.of("America/Sao_Paulo");
-
     private final ProfileStore profileStore;
     private final SearchJobsForProfileUseCase searchJobsForProfileUseCase;
     private final CompanyLoader companyLoader;
-    private final SubscriptionStore subscriptionStore;
 
     public DashboardController(ProfileStore profileStore, SearchJobsForProfileUseCase searchJobsForProfileUseCase,
-            CompanyLoader companyLoader, SubscriptionStore subscriptionStore) {
+            CompanyLoader companyLoader) {
         this.profileStore = profileStore;
         this.searchJobsForProfileUseCase = searchJobsForProfileUseCase;
         this.companyLoader = companyLoader;
-        this.subscriptionStore = subscriptionStore;
     }
 
     @GetMapping("/")
     public String home(Model model, Principal principal) {
-        String username = principal.getName();
-        Plan plan = subscriptionStore.getPlan(username);
-
         model.addAttribute("profile", currentDescription(principal));
-        model.addAttribute("plan", plan.name());
-        model.addAttribute("planPrice", Plan.PLUS.priceDisplay());
-        model.addAttribute("limitReached", plan == Plan.FREE && alreadySearchedToday(username));
         return "dashboard";
     }
 
@@ -70,37 +53,15 @@ public class DashboardController {
     @PostMapping(value = "/buscar", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public BuscarResponse buscar(Principal principal) throws Exception {
-        String username = principal.getName();
         String description = currentDescription(principal);
         if (description == null || description.isBlank()) {
-            return new BuscarResponse(List.of(), 0, "Edite seu perfil antes de buscar vagas.");
-        }
-
-        Plan plan = subscriptionStore.getPlan(username);
-        if (plan == Plan.FREE && alreadySearchedToday(username)) {
-            return new BuscarResponse(List.of(), 0,
-                    "Você já usou sua busca de hoje no plano Free. Assine o PLUS pra buscar sem limites.");
+            return new BuscarResponse(List.of(), "Edite seu perfil antes de buscar vagas.");
         }
 
         List<Company> companies = companyLoader.load();
         List<ClassifiedJob> results = searchJobsForProfileUseCase.search(companies, new UserProfile(description));
-        subscriptionStore.recordSearchNow(username);
 
-        if (plan == Plan.FREE && results.size() > FREE_VISIBLE_RESULTS) {
-            List<ClassifiedJob> visible = results.subList(0, FREE_VISIBLE_RESULTS);
-            int lockedCount = results.size() - FREE_VISIBLE_RESULTS;
-            return new BuscarResponse(visible, lockedCount, null);
-        }
-
-        return new BuscarResponse(results, 0, null);
-    }
-
-    private boolean alreadySearchedToday(String username) {
-        Instant lastSearchAt = subscriptionStore.getLastSearchAt(username);
-        if (lastSearchAt == null) {
-            return false;
-        }
-        return LocalDate.ofInstant(lastSearchAt, ZONE).equals(LocalDate.now(ZONE));
+        return new BuscarResponse(results, null);
     }
 
     private String currentDescription(Principal principal) {

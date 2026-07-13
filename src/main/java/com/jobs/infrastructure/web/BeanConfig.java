@@ -7,20 +7,17 @@ import com.jobs.application.SearchJobsUseCase;
 import com.jobs.application.port.CompanyLoader;
 import com.jobs.application.port.FitScorer;
 import com.jobs.application.port.LinkedInJobSource;
-import com.jobs.application.port.PaymentGateway;
 import com.jobs.application.port.SearchCriteriaExtractor;
 import com.jobs.domain.Classifier;
 import com.jobs.infrastructure.ai.AnthropicFitScorer;
 import com.jobs.infrastructure.ai.AnthropicSearchCriteriaExtractor;
 import com.jobs.infrastructure.config.AnthropicProperties;
 import com.jobs.infrastructure.config.CompanyFileLoader;
-import com.jobs.infrastructure.config.InfinitePayProperties;
 import com.jobs.infrastructure.gupy.BuildIdExtractor;
 import com.jobs.infrastructure.gupy.GupyClient;
 import com.jobs.infrastructure.gupy.GupyJobSource;
 import com.jobs.infrastructure.linkedin.LinkedInHttpJobSource;
 import com.jobs.infrastructure.linkedin.LinkedInJobParser;
-import com.jobs.infrastructure.payment.InfinitePayGateway;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -91,11 +88,5 @@ public class BeanConfig {
     public SearchJobsForProfileUseCase searchJobsForProfileUseCase(SearchJobsUseCase searchJobsUseCase,
             SearchCriteriaExtractor searchCriteriaExtractor) {
         return new SearchJobsForProfileUseCase(searchJobsUseCase, searchCriteriaExtractor);
-    }
-
-    @Bean
-    public PaymentGateway paymentGateway(HttpClient httpClient, ObjectMapper objectMapper,
-            InfinitePayProperties infinitePayProperties) {
-        return new InfinitePayGateway(httpClient, objectMapper, infinitePayProperties.handle());
     }
 }

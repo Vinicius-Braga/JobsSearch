@@ -1,7 +1,0 @@
-package com.jobs.infrastructure.config;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
-@ConfigurationProperties(prefix = "app.infinitepay")
-public record InfinitePayProperties(String handle) {
-}

@@ -25,6 +25,4 @@ EXPOSE 8080
 # Contêiner sem rota IPv6 funcional (comum no Docker Desktop) faz chamadas HTTPS
 # externas (Gupy, API da Claude) falharem com "Network is unreachable" se a JVM
 # tentar IPv6 primeiro — força IPv4.
-# MaxRAMPercentage=75: o padrão da JVM (25%) é conservador demais quando o app é o
-# único processo no container (ex: plano free do Render, com pouca RAM disponível).
-ENTRYPOINT ["java", "-Djava.net.preferIPv4Stack=true", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djava.net.preferIPv4Stack=true", "-jar", "app.jar"]

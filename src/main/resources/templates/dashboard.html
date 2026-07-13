@@ -12,19 +12,11 @@
                 box-shadow: var(--card-shadow); background: white; }
 
     header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; }
-    .brand-wrap { display: flex; align-items: center; gap: 10px; }
     .brand { font-weight: 800; font-size: 18px; color: var(--ink); }
     .brand .dot { color: var(--amber-500); }
-    .plan-badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 11px;
-                  font-weight: 800; letter-spacing: .03em; background: var(--cream-50); color: var(--ink-muted);
-                  border: 1px solid var(--input-border); }
-    .plan-badge.plus { background: linear-gradient(135deg, var(--amber-500), var(--amber-600));
-                        color: white; border: none; }
     nav { display: flex; align-items: center; gap: 20px; }
     nav a { color: var(--ink-muted); text-decoration: none; font-size: 13.5px; font-weight: 600; }
     nav a:hover { color: var(--ink); }
-    nav a.ver-planos { color: var(--amber-600); }
-    nav a.ver-planos:hover { color: var(--amber-600); text-decoration: underline; }
     form.logout button { background: none; border: 1px solid var(--input-border); border-radius: 9px; padding: 8px 16px;
                           font-family: inherit; font-size: 13px; font-weight: 700; color: var(--ink-muted); cursor: pointer;
                           transition: border-color .2s, color .2s; }
@@ -69,12 +61,6 @@
     .radar-wrap.loading .radar-btn { cursor: wait; }
     .radar-hint { text-align: center; color: oklch(0.65 0.02 250); font-size: 12.5px; margin-top: 16px; }
 
-    .limit-box { max-width: 420px; margin: 20px auto 0; background: var(--glass-bg); border: 1px solid var(--glass-border);
-                 border-radius: 12px; padding: 14px 18px; text-align: center; }
-    .limit-box p { margin: 0; color: oklch(0.92 0.01 250); font-size: 13.5px; line-height: 1.5; }
-    .limit-box a { color: var(--amber-200); font-weight: 700; text-decoration: none; cursor: pointer; }
-    .limit-box a:hover { text-decoration: underline; }
-
     /* --- Results --- */
     .results { background: var(--cream-100); padding: 32px 40px 56px; min-height: 100px; }
     .resumo { color: var(--ink-muted); font-size: 13px; margin: 0 0 10px; }
@@ -89,57 +75,13 @@
              background: var(--cream-50); color: var(--ink-muted); }
     a.aplicar { color: var(--navy-800); font-weight: 700; text-decoration: none; white-space: nowrap; }
     a.aplicar:hover { text-decoration: underline; }
-
-    .upsell-card { max-width: 480px; margin: 16px auto 0; background: white; border: 1px solid var(--input-border);
-                   border-radius: 12px; padding: 16px 20px; text-align: center; box-shadow: var(--card-shadow); }
-    .upsell-card p { margin: 0; color: var(--ink-soft); font-size: 13.5px; line-height: 1.6; }
-    .upsell-card strong { color: var(--ink); }
-    .upsell-card a { color: var(--amber-600); font-weight: 700; text-decoration: none; cursor: pointer; }
-    .upsell-card a:hover { text-decoration: underline; }
-
-    /* --- Modal de planos --- */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(20, 20, 10, .45); display: none;
-                      align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-    .modal-overlay.open { display: flex; }
-    .modal-box { background: white; border-radius: 18px; padding: 28px 32px; max-width: 640px; width: 100%;
-                 box-shadow: var(--card-shadow); }
-    .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; }
-    .modal-header h2 { margin: 0 0 4px; font-size: 21px; font-weight: 800; color: var(--ink); }
-    .modal-header p { margin: 0; color: var(--ink-muted); font-size: 13.5px; }
-    .modal-close { background: none; border: none; color: var(--ink-muted); font-size: 13px; font-weight: 600;
-                   cursor: pointer; }
-    .modal-close:hover { color: var(--ink); }
-    .plan-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .plan-card { border: 1px solid var(--input-border); border-radius: 14px; padding: 20px; position: relative; }
-    .plan-card.highlight { background: linear-gradient(var(--navy-800), var(--navy-900)); border: none; color: white; }
-    .plan-tag { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 10.5px;
-                font-weight: 800; letter-spacing: .04em; background: var(--cream-50); color: var(--ink-muted);
-                margin-bottom: 10px; }
-    .plan-tag.recommended { background: var(--amber-500); color: white; }
-    .plan-card h3 { margin: 0 0 4px; font-size: 16px; font-weight: 800; }
-    .plan-price { margin: 0 0 16px; font-size: 24px; font-weight: 800; }
-    .plan-price span { font-size: 13px; font-weight: 600; opacity: .75; }
-    .plan-card ul { list-style: none; margin: 0 0 18px; padding: 0; }
-    .plan-card li { font-size: 13.5px; margin-bottom: 8px; }
-    .plan-card li.off { opacity: .5; }
-    .plan-btn { display: block; box-sizing: border-box; width: 100%; padding: 10px; border-radius: 9px;
-                border: 1px solid var(--input-border); background: white; color: var(--ink-muted); font-weight: 700;
-                font-size: 13.5px; text-align: center; text-decoration: none; cursor: default; }
-    .plan-btn.primary { background: var(--amber-500); color: white; border: none; cursor: pointer; }
-    .plan-btn.primary:hover { background: var(--amber-600); }
-    .plan-card.highlight .plan-btn:not(.primary) { background: transparent; color: white; border-color: rgba(255,255,255,.3); }
-    @media (max-width: 520px) { .plan-cards { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 <div class="app-card">
     <header>
-        <div class="brand-wrap">
-            <div class="brand">JobSearch<span class="dot">.</span></div>
-            <span class="plan-badge" th:classappend="${plan == 'PLUS'} ? 'plus' : ''" th:text="${plan}"></span>
-        </div>
+        <div class="brand">JobSearch<span class="dot">.</span></div>
         <nav>
-            <a class="ver-planos" href="javascript:void(0)" id="verPlanosLink">Ver planos</a>
             <a th:href="@{/perfil/editar}">Editar perfil</a>
             <form class="logout" th:action="@{/logout}" method="post">
                 <button type="submit">Sair</button>
@@ -159,68 +101,24 @@
         </div>
 
         <div id="radar" class="radar-wrap"
-             th:classappend="${profile != null and !#strings.isEmpty(profile) and !limitReached} ? 'active' : ''">
+             th:classappend="${profile != null and !#strings.isEmpty(profile)} ? 'active' : ''">
             <span class="ring ring1"></span>
             <span class="ring ring2"></span>
             <button id="btnBuscar" class="radar-btn"
-                    th:disabled="${profile == null or #strings.isEmpty(profile) or limitReached}"
-                    th:text="${limitReached} ? 'Limite atingido' : 'Buscar vagas'">Buscar vagas</button>
+                    th:disabled="${profile == null or #strings.isEmpty(profile)}">Buscar vagas</button>
         </div>
-        <p class="radar-hint" th:if="${(profile == null or #strings.isEmpty(profile)) and !limitReached}">
+        <p class="radar-hint" th:if="${profile == null or #strings.isEmpty(profile)}">
             Edite seu perfil para ativar a busca.
         </p>
-        <div class="limit-box" id="limitBox" th:if="${limitReached}">
-            <p>Você já usou sua busca de hoje no plano Free.<br>
-                <a id="limitUpgradeLink">Assine o PLUS pra buscar sem limites →</a></p>
-        </div>
     </section>
 
     <section class="results" id="resultsArea"></section>
-</div>
-
-<div class="modal-overlay" id="pricingModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <div>
-                <h2>Escolha seu plano</h2>
-                <p>Mude quando quiser, sem burocracia.</p>
-            </div>
-            <button class="modal-close" id="closeModal">Fechar ✕</button>
-        </div>
-        <div class="plan-cards">
-            <div class="plan-card">
-                <span class="plan-tag" th:if="${plan == 'FREE'}">SEU PLANO</span>
-                <h3>Free</h3>
-                <p class="plan-price">R$ 0</p>
-                <ul>
-                    <li>✓ 1 busca por dia</li>
-                    <li>✓ Até 3 vagas por busca</li>
-                    <li class="off">✕ Vagas ilimitadas</li>
-                </ul>
-                <button class="plan-btn" disabled>Plano atual</button>
-            </div>
-            <div class="plan-card highlight">
-                <span class="plan-tag recommended" th:if="${plan != 'PLUS'}">RECOMENDADO</span>
-                <span class="plan-tag" th:if="${plan == 'PLUS'}">SEU PLANO</span>
-                <h3>Plus</h3>
-                <p class="plan-price" th:utext="${planPrice} + '&lt;span&gt;/mês&lt;/span&gt;'">R$5<span>/mês</span></p>
-                <ul>
-                    <li>✓ Buscas ilimitadas por dia</li>
-                    <li>✓ Vagas ilimitadas por busca</li>
-                    <li>✓ Suporte prioritário</li>
-                </ul>
-                <a class="plan-btn primary" th:href="@{/assinar}" th:unless="${plan == 'PLUS'}">Assinar PLUS</a>
-                <button class="plan-btn" disabled th:if="${plan == 'PLUS'}">Plano atual</button>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script th:inline="javascript">
     const radar = document.getElementById('radar');
     const btn = document.getElementById('btnBuscar');
     const resultsArea = document.getElementById('resultsArea');
-    const limitBox = document.getElementById('limitBox');
     const csrfToken = document.querySelector('meta[name="_csrf"]').content;
     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
     let searchedOnce = false;
@@ -244,6 +142,7 @@
             renderResults(data);
         } catch (err) {
             resultsArea.innerHTML = '<p class="erro">Falha na busca: ' + escapeHtml(err.message) + '</p>';
+        } finally {
             radar.classList.remove('loading');
             btn.disabled = false;
             btn.textContent = searchedOnce ? 'Buscar novamente' : 'Buscar vagas';
@@ -251,28 +150,14 @@
     });
 
     function renderResults(data) {
-        const wasLimitBlock = data.results.length === 0 && data.lockedCount === 0 && data.aviso;
-        if (wasLimitBlock) {
-            radar.classList.remove('active', 'loading');
-            btn.disabled = true;
-            btn.textContent = 'Limite atingido';
-            showLimitBox();
-            resultsArea.innerHTML = '';
-            return;
-        }
-
-        radar.classList.remove('loading');
-        btn.disabled = false;
         searchedOnce = true;
-        btn.textContent = 'Buscar novamente';
 
         let html = '';
         if (data.aviso) {
             html += '<p class="erro">' + escapeHtml(data.aviso) + '</p>';
         }
 
-        const total = data.results.length + data.lockedCount;
-        html += '<p class="resumo">' + total + ' vaga(s) encontrada(s)</p>';
+        html += '<p class="resumo">' + data.results.length + ' vaga(s) encontrada(s)</p>';
 
         html += '<table><thead><tr>'
             + '<th>Vaga</th><th>Empresa</th><th>Local</th><th>Modalidade</th><th>Área</th><th>Senioridade</th><th></th>'
@@ -290,61 +175,13 @@
         }
         html += '</tbody></table>';
 
-        if (data.lockedCount > 0) {
-            html += '<div class="upsell-card"><p>Encontramos <strong>mais ' + data.lockedCount
-                + ' vaga(s)</strong> pra você — visíveis no plano PLUS.<br>'
-                + '<a id="upsellLink">Desbloquear com PLUS →</a></p></div>';
-        }
-
         resultsArea.innerHTML = html;
-
-        const upsellLink = document.getElementById('upsellLink');
-        if (upsellLink) {
-            upsellLink.addEventListener('click', openPricingModal);
-        }
-    }
-
-    function showLimitBox() {
-        if (document.getElementById('limitBox')) {
-            return;
-        }
-        const box = document.createElement('div');
-        box.className = 'limit-box';
-        box.id = 'limitBox';
-        box.innerHTML = '<p>Você já usou sua busca de hoje no plano Free.<br>'
-            + '<a id="limitUpgradeLink">Assine o PLUS pra buscar sem limites →</a></p>';
-        radar.insertAdjacentElement('afterend', box);
-        document.getElementById('limitUpgradeLink').addEventListener('click', openPricingModal);
     }
 
     function escapeHtml(value) {
         const div = document.createElement('div');
         div.textContent = value == null ? '' : value;
         return div.innerHTML;
-    }
-
-    // --- Modal de planos ---
-    const pricingModal = document.getElementById('pricingModal');
-
-    function openPricingModal() {
-        pricingModal.classList.add('open');
-    }
-
-    function closePricingModal() {
-        pricingModal.classList.remove('open');
-    }
-
-    document.getElementById('verPlanosLink').addEventListener('click', openPricingModal);
-    document.getElementById('closeModal').addEventListener('click', closePricingModal);
-    pricingModal.addEventListener('click', (event) => {
-        if (event.target === pricingModal) {
-            closePricingModal();
-        }
-    });
-
-    const existingLimitLink = document.getElementById('limitUpgradeLink');
-    if (existingLimitLink) {
-        existingLimitLink.addEventListener('click', openPricingModal);
     }
 </script>
 </body>

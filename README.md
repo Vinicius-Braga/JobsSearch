@@ -5,7 +5,7 @@
 
 Aplicação web em Java/Spring Boot que coleta vagas de páginas de carreira que usam a plataforma Gupy e do LinkedIn, e usa a IA da Claude pra entender seu perfil de busca (área, senioridade, região, remoto ou não, stack) — sob demanda, direto no navegador.
 
-> Veja o [roadmap](docs/ROADMAP_V2.md) pra entender as fases já entregues e o que vem a seguir.
+> Projeto de portfólio, pensado pra rodar localmente. Veja o [roadmap](docs/ROADMAP_V2.md) pra entender as fases já entregues e o que vem a seguir.
 
 ## Pré-requisitos
 
@@ -62,16 +62,12 @@ DATABASE_USERNAME=seu_usuario
 DATABASE_PASSWORD=sua_senha
 ANTHROPIC_API_KEY=sua_chave_aqui
 ANTHROPIC_MODEL=claude-haiku-4-5-20251001
-INFINITEPAY_HANDLE=seu_handle_infinitepay
-APP_BASE_URL=http://localhost:8080
 COMPANIES_FILE=empresas.txt
 ```
 
 - **`DATABASE_URL`/`DATABASE_USERNAME`/`DATABASE_PASSWORD`**: conexão com o Postgres — é onde ficam as contas de usuário e os perfis de busca. Sem isso o app não sobe.
 - **`ANTHROPIC_API_KEY`**: sem ela, a busca ainda roda e mostra quantas vagas bateram no filtro, mas nenhuma é pontuada pela IA (fica visível um aviso na tela).
 - **`ANTHROPIC_MODEL`**: opcional — modelo da Claude usado pra extrair critérios do perfil e (quando religada) pontuar vagas. Se omitido, usa `claude-haiku-4-5-20251001`.
-- **`INFINITEPAY_HANDLE`**: seu identificador público na InfinitePay (o "$handle" da conta, sem o `$`) — usado pra criar o link de checkout da assinatura PLUS. Não é uma chave secreta.
-- **`APP_BASE_URL`**: URL pública do app, usada pra montar o link de retorno e o webhook de confirmação de pagamento. Opcional no Render — se omitida, o app usa automaticamente a `RENDER_EXTERNAL_URL` que o Render injeta sozinho. Em `localhost` sem hospedagem, o webhook simplesmente não é alcançável pela InfinitePay (não tem como testar o pagamento real sem um túnel como ngrok ou estar hospedado).
 - **`COMPANIES_FILE`**: opcional — caminho do arquivo de empresas monitoradas (veja a seção **`empresas.txt`** abaixo). Se omitido, usa `empresas.txt` na raiz do projeto.
 
 **Esse arquivo contém credenciais — nunca commite ele.** Já está no `.gitignore`.
@@ -102,11 +98,6 @@ A cada busca, a IA lê esse texto e decide sozinha os critérios de pré-filtro 
 4. Na tela inicial, o botão de busca fica colorido/ativo assim que há um perfil salvo. Clique nele — a busca roda em background (com uma animação de radar), sem recarregar a página: a IA extrai os critérios do seu perfil (área, senioridade, região, remoto ou não) e filtra as vagas das empresas do `empresas.txt`.
 5. A lista aparece com as vagas encontradas (título, empresa, local, modalidade, área, senioridade) e link direto pra aplicar.
 
-## Planos
-
-- **Grátis**: 1 busca por dia, mostra só as 3 primeiras vagas (o resto aparece borrado, indicando que tem mais).
-- **Plus (R$5/mês)**: busca ilimitada, todas as vagas visíveis. Assinatura via checkout da [InfinitePay](https://www.infinitepay.io/) (PIX/cartão) — clique em "Ver planos" > "Assinar PLUS" no app. Requer `INFINITEPAY_HANDLE` e `APP_BASE_URL` configurados no `.env` (veja a seção **Configuração**); o webhook de confirmação de pagamento só é alcançável pela InfinitePay quando o app está hospedado publicamente (não funciona em `localhost` sem um túnel como ngrok).
-
 > A pontuação de aderência por vaga (nota + justificativa via IA) existe no código (`FitScorer`/`AnthropicFitScorer`), mas está desligada do fluxo principal por enquanto — ver o [roadmap](docs/ROADMAP_V2.md).
 
 ## Estrutura do código
@@ -124,15 +115,6 @@ src/main/java/com/jobs/
 ```
 
 Trocar de fonte de vagas ou de motor de IA significa implementar a interface correspondente em `application/port` — sem tocar nos casos de uso.
-
-## Hospedagem (Render)
-
-O repo tem um `render.yaml` (Blueprint do Render) pronto — builda direto do `Dockerfile`, sem passo manual de build.
-
-1. No [dashboard do Render](https://dashboard.render.com/), **New > Blueprint**, conecte este repositório.
-2. O Render detecta o `render.yaml` e propõe o serviço `jobsearch` (Docker, plano free).
-3. Preencha as variáveis marcadas como secretas no formulário: `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `ANTHROPIC_API_KEY`, `INFINITEPAY_HANDLE`. Não é preciso configurar `APP_BASE_URL` — o app detecta a URL pública sozinho via `RENDER_EXTERNAL_URL`.
-4. Deploy. O plano free "dorme" depois de 15 min sem uso e demora ~1min pra acordar na próxima requisição — normal, não é bug.
 
 ## Comandos úteis
 

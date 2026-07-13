@@ -23,10 +23,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // /api/** e /webhooks/** são chamados por máquina (curl, InfinitePay), sem sessão/cookie — CSRF não se aplica.
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/webhooks/**"))
+                // /api/** é chamado por máquina (curl, futura integração), sem sessão/cookie — CSRF não se aplica.
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/**", "/login", "/cadastro", "/webhooks/**").permitAll()
+                        .requestMatchers("/api/**", "/login", "/cadastro").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
