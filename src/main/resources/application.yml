@@ -7,8 +7,14 @@ spring:
     password: ${DATABASE_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: update
+      # Schema agora é dono do Flyway (db/migration) — Hibernate só confere se bate, não cria/altera mais nada.
+      ddl-auto: validate
     open-in-view: false
+  flyway:
+    # baseline-version: 0 garante que TODAS as migrations (incluindo a V1) rodem mesmo num banco que já
+    # tinha as tabelas criadas pelo antigo ddl-auto:update (sem isso, baseline-on-migrate pularia a V1).
+    baseline-on-migrate: true
+    baseline-version: 0
 
 app:
   anthropic:

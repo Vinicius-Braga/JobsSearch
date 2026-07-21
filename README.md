@@ -90,6 +90,10 @@ O perfil de busca é editado direto na tela, em texto livre, depois de fazer log
 
 A cada busca, a IA lê esse texto e decide sozinha os critérios de pré-filtro (área, senioridade, região, remoto ou não) — não existe mais um arquivo de configuração de filtro separado do perfil. Esse pré-filtro reduz o volume de vagas antes da etapa mais cara (pontuar cada uma individualmente com IA).
 
+### Schema do banco (Flyway)
+
+O schema (`account`, `user_profile`) é versionado em `src/main/resources/db/migration/`, aplicado automaticamente pelo Flyway toda vez que o app sobe — não precisa rodar nada manualmente. Pra mudar o schema, adicione um novo arquivo `V3__descricao.sql` (não edite as migrations já aplicadas).
+
 ## Como usar
 
 1. Rode `.\gradlew.bat bootRun` (ou `docker compose up --build`) e acesse http://localhost:8080.
