@@ -29,17 +29,24 @@ public class SearchJobsForProfileUseCase {
         this.searchCriteriaExtractor = searchCriteriaExtractor;
     }
 
-    public List<ClassifiedJob> search(List<Company> companies, UserProfile profile) {
-        JobFilter filter = extractFilter(profile);
-        return searchJobsUseCase.search(companies, filter);
-    }
-
-    private JobFilter extractFilter(UserProfile profile) {
+    public Result search(List<Company> companies, UserProfile profile) {
+        boolean filterExtracted = true;
+        JobFilter filter;
         try {
-            return searchCriteriaExtractor.extract(profile);
+            filter = searchCriteriaExtractor.extract(profile);
         } catch (Exception e) {
             log.warn("Falha ao extrair critérios de busca do perfil, buscando sem pré-filtro: {}", e.getMessage());
-            return new JobFilter(List.of(), List.of(), List.of(), false, List.of());
+            filter = new JobFilter(List.of(), List.of(), List.of(), false, List.of());
+            filterExtracted = false;
         }
+
+        List<ClassifiedJob> jobs = searchJobsUseCase.search(companies, filter);
+        return new Result(jobs, filterExtracted);
+    }
+
+    // filterExtracted=false significa que a IA falhou e a busca voltou SEM pré-filtro nenhum
+    // (todas as vagas encontradas, de qualquer área/senioridade/região) — quem chama deve avisar
+    // a pessoa disso, já que o resultado não reflete o perfil dela.
+    public record Result(List<ClassifiedJob> jobs, boolean filterExtracted) {
     }
 }

@@ -3,7 +3,6 @@ package com.jobs.infrastructure.web;
 import com.jobs.application.SearchJobsForProfileUseCase;
 import com.jobs.application.port.CompanyLoader;
 import com.jobs.application.port.ProfileStore;
-import com.jobs.domain.ClassifiedJob;
 import com.jobs.domain.Company;
 import com.jobs.domain.UserProfile;
 import org.springframework.http.MediaType;
@@ -59,9 +58,12 @@ public class DashboardController {
         }
 
         List<Company> companies = companyLoader.load();
-        List<ClassifiedJob> results = searchJobsForProfileUseCase.search(companies, new UserProfile(description));
+        var result = searchJobsForProfileUseCase.search(companies, new UserProfile(description));
 
-        return new BuscarResponse(results, null);
+        String aviso = result.filterExtracted() ? null
+                : "Não foi possível aplicar os filtros do seu perfil (falha ao consultar a IA) — "
+                        + "mostrando todas as vagas encontradas, sem filtro.";
+        return new BuscarResponse(result.jobs(), aviso);
     }
 
     private String currentDescription(Principal principal) {
